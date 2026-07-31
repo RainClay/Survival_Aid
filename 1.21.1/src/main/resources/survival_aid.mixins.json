@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "package": "com.survivalaid.mixin",
+  "refmap": "survival_aid-refmap.json",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AbstractBlockMixin",
+    "EntityMixin",
+    "EndermanPickUpBlockGoalMixin",
+    "EndermanPlaceBlockGoalMixin",
+    "PlayerEntityMixin",
+    "LivingEntityMixin",
+    "ItemEntityMixin",
+    "CreeperEntityMixin",
+    "VillagerEntityMixin",
+    "CatSpawnerMixin",
+    "FlintAndSteelItemMixin",
+    "FireChargeItemMixin",
+    "ServerPlayerInteractionManagerMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "BotMinecartPreserveMixin",
+    "NetherPortalBlockMixin",
+    "BlockDisplayEntityAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,12 @@
+// Placeholder to check loom extension methods
+println "=== Checking LoomExtensionImpl methods ==="
+def loomExt = project.extensions.findByName("loom")
+if (loomExt != null) {
+    loomExt.class.methods.findAll { 
+        !it.name.contains('$') && !it.name.contains('set') && !it.name.contains('get') && !it.name.contains('add') 
+    }.each { println it.name }
+    println "=== Properties ==="
+    loomExt.class.methods.findAll { 
+        it.name.startsWith('get') || it.name.startsWith('set')
+    }.each { println it.name }
+}

@@ -1,0 +1,20 @@
+projectsEvaluated {
+    def loomExt = rootProject.extensions.findByName("loom")
+    if (loomExt != null) {
+        println "=== Loom extension type: ${loomExt.class.name} ==="
+        println "=== Methods ==="
+        loomExt.class.methods.findAll { m ->
+            !m.name.contains('$') && !['wait','equals','hashCode','toString','getClass','notify','notifyAll'].contains(m.name)
+        }.sort { it.name }.each { m ->
+            println "  ${m.name}(${m.parameterTypes*.simpleName.join(', ')})"
+        }
+        println "=== getMappings() return type ==="
+        def getMappings = loomExt.class.methods.find { it.name == 'getMappings' }
+        if (getMappings) {
+            println "  getMappings() -> ${getMappings.returnType.simpleName}"
+            println "  return type methods: ${getMappings.returnType.methods*.name.sort()}"
+        }
+    } else {
+        println "No loom extension found"
+    }
+}

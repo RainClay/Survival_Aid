@@ -1,38 +1,40 @@
 package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidTntLikeBlocks;
-import net.minecraft.class_1676;
-import net.minecraft.class_1937;
-import net.minecraft.class_2248;
-import net.minecraft.class_2338;
-import net.minecraft.class_2680;
-import net.minecraft.class_3965;
-import net.minecraft.class_4970;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/mixin/AbstractBlockMixin.class */
-@Mixin({class_4970.class})
+@Mixin(AbstractBlock.class)
 public abstract class AbstractBlockMixin {
-    @Inject(method = {"method_9612"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
-        if (world.method_49803(pos) && SurvivalAidTntLikeBlocks.prime(world, pos)) {
+    @Inject(method = "onBlockAdded", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$primeBlockOnRedstone(BlockState state, World world, BlockPos pos, BlockState sourceBlock, BlockPos sourcePos, boolean notify, CallbackInfo ci) {
+        if (world.isReceivingRedstonePower(pos) && SurvivalAidTntLikeBlocks.prime(world, pos)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = {"method_9615"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
-        if (!oldState.method_27852(state.method_26204()) && world.method_49803(pos) && SurvivalAidTntLikeBlocks.prime(world, pos)) {
+    @Inject(method = "neighborUpdate", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$primeAddedPoweredBlock(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify, boolean moved, CallbackInfo ci) {
+        BlockState oldState = world.getBlockState(pos);
+        if (!oldState.isOf(state.getBlock()) && world.isReceivingRedstonePower(pos) && SurvivalAidTntLikeBlocks.prime(world, pos)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = {"method_19286"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
-        if (!world.method_8608() && projectile.method_5809() && projectile.method_36971(world, hit.method_17777()) && SurvivalAidTntLikeBlocks.prime(world, hit.method_17777())) {
+    @Inject(method = "onProjectileHit", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$primeBlockOnBurningProjectile(World world, BlockState state, BlockHitResult hit, ProjectileEntity projectile, CallbackInfo ci) {
+        if (!world.isClient() && projectile.isOnFire() && projectile.isOnGround() && SurvivalAidTntLikeBlocks.prime(world, hit.getBlockPos())) {
             ci.cancel();
         }
     }

@@ -11,17 +11,11 @@ repositories {
 }
 
 loom {
-    useIntermediateMappings = true
-    productionNamespace = 'intermediary'
     mods {
         "survival_aid" {
             sourceSet sourceSets.main
         }
     }
-}
-
-configurations.compileClasspath {
-    exclude group: 'net.fabricmc.yarn'
 }
 
 dependencies {
@@ -30,9 +24,6 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     compileOnly "carpet:fabric-carpet:${project.carpet_version}"
-
-    // 强制使用 intermediary jar 进行编译
-    compileOnly files(file("${System.getProperty('user.home')}/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged-intermediary/${project.minecraft_version}-net.fabricmc.yarn.${project.yarn_mappings.replace('+build', '.1.21').replace('.', '_')}-v2/minecraft-merged-intermediary-${project.minecraft_version}-net.fabricmc.yarn.${project.yarn_mappings.replace('+build', '.1.21').replace('.', '_')}-v2.jar"))
 }
 
 processResources {
@@ -62,17 +53,5 @@ tasks.register("printClasspath") {
 jar {
     from("${rootProject.projectDir}/LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
-    }
-}
-
-afterEvaluate {
-    def loomExt = project.extensions.findByName("loom")
-    if (loomExt != null) {
-        println "=== Loom extension type: ${loomExt.class.name} ==="
-        loomExt.class.declaredMethods.sort { it.name }.each { m ->
-            if (!m.name.contains('$') && !['wait','equals','hashCode','toString','getClass','notify','notifyAll'].contains(m.name)) {
-                println "  ${m.name}(${m.parameterTypes*.simpleName.join(', ')}) -> ${m.returnType.simpleName}"
-            }
-        }
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -25,12 +26,12 @@ public abstract class VillagerEntityMixin {
         if (!WorkstationHighLightRule.survivalAidWorkstationHighLight || !player.isShiftKeyDown()) {
             return;
         }
-        Villager villager = (Villager) this;
-        ServerLevel serverLevelLevel = villager.level();
+        Villager villager = (Villager) (Object) this;
+        Level serverLevelLevel = villager.level();
         if (!(serverLevelLevel instanceof ServerLevel)) {
             return;
         }
-        ServerLevel serverLevel = serverLevelLevel;
+        ServerLevel serverLevel = (ServerLevel) serverLevelLevel;
         Optional<BlockPos> workstation = villager.getBrain().getMemory(MemoryModuleType.JOB_SITE).map(globalPos -> {
             return globalPos.pos();
         });

@@ -30,7 +30,7 @@ public abstract class ItemEntityMixin {
                 return;
             }
         }
-        ItemEntity self = (ItemEntity) this;
+        ItemEntity self = (ItemEntity) (Object) this;
         ItemStack stack = self.getItem();
         Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
         if (!survivalAid$canPlayerPickConfiguredItem(player, itemId, stack)) {
@@ -168,8 +168,8 @@ public abstract class ItemEntityMixin {
 
     @Inject(method = {"tick"}, at = {@At("HEAD")})
     private void survivalAid$preventDespawn(CallbackInfo ci) {
-        if (NoItemDespawnRule.survivalAidNoItemDespawn && !((ItemEntity) this).level().isClientSide()) {
-            ((ItemEntity) this).setUnlimitedLifetime();
+        if (NoItemDespawnRule.survivalAidNoItemDespawn && !((ItemEntity) (Object) this).level().isClientSide()) {
+            ((ItemEntity) (Object) this).setUnlimitedLifetime();
         }
     }
 }

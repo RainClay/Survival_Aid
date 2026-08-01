@@ -229,9 +229,9 @@ public final class SurvivalAidRuntime {
                             } else {
                                 player.getFoodData().eat(food);
                                 List<MobEffectInstance> foodEffects = new ArrayList<>();
-                                for (ApplyStatusEffectsConsumeEffect applyStatusEffectsConsumeEffect : consumable.onConsumeEffects()) {
-                                    if (applyStatusEffectsConsumeEffect instanceof ApplyStatusEffectsConsumeEffect) {
-                                        ApplyStatusEffectsConsumeEffect applyEffect = applyStatusEffectsConsumeEffect;
+                                for (ConsumeEffect consumeEffect : consumable.onConsumeEffects()) {
+                                    if (consumeEffect instanceof ApplyStatusEffectsConsumeEffect) {
+                                        ApplyStatusEffectsConsumeEffect applyEffect = (ApplyStatusEffectsConsumeEffect) consumeEffect;
                                         if (applyEffect.probability() >= 1.0f || player.getRandom().nextFloat() < applyEffect.probability()) {
                                             for (MobEffectInstance effect2 : applyEffect.effects()) {
                                                 foodEffects.add(effect2);

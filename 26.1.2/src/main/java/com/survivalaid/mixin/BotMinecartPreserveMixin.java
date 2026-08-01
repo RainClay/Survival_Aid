@@ -16,7 +16,7 @@ public abstract class BotMinecartPreserveMixin {
     private void survivalAid$dismountBeforeKill(CallbackInfo ci) {
         EntityPlayerMPFake self;
         Entity vehicle;
-        if (BotMinecartPreserveRule.survivalAidBotMinecartPreserve && (vehicle = (self = (EntityPlayerMPFake) this).getVehicle()) != null && !(vehicle instanceof Player)) {
+        if (BotMinecartPreserveRule.survivalAidBotMinecartPreserve && (vehicle = (self = (EntityPlayerMPFake) (Object) this).getVehicle()) != null && !(vehicle instanceof Player)) {
             self.stopRiding();
         }
     }

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityMixin {
     @Inject(method = {"push"}, at = {@At("HEAD")}, cancellable = true)
     private void survivalAid$skipConfiguredSameTypeStackingPush(Entity otherEntity, CallbackInfo ci) {
-        Entity entity = (Entity) this;
+        Entity entity = (Entity) (Object) this;
         if (SurvivalAidRules.skipsStackingPush(entity, otherEntity)) {
             ci.cancel();
         }
@@ -27,7 +27,7 @@ public abstract class EntityMixin {
         if (!BotMinecartPreserveRule.survivalAidBotMinecartPreserve) {
             return;
         }
-        Entity self = (Entity) this;
+        Entity self = (Entity) (Object) this;
         if ((self instanceof EntityPlayerMPFake) && (vehicle = self.getVehicle()) != null && !(vehicle instanceof Player)) {
             self.stopRiding();
         }

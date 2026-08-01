@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.1-1.0.1.jar:com/survivalaid/SurvivalAidExtension.class */
+/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidExtension.class */
 public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
     public static final String MOD_ID = "survival_aid";
     public static final String MOD_NAME = "Carpet SurvivalAid";

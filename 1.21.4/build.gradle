@@ -8,7 +8,6 @@ repositories {
 }
 
 loom {
-    useIntermediateMappings = true
     mods {
         "survival_aid" {
             sourceSet sourceSets.main

@@ -2,16 +2,17 @@ package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidToolProtection;
 import com.survivalaid.SurvivalAidVisitors;
-import net.minecraft.class_1268;
-import net.minecraft.class_1269;
-import net.minecraft.class_1799;
-import net.minecraft.class_1937;
-import net.minecraft.class_2338;
-import net.minecraft.class_2350;
-import net.minecraft.class_2846;
-import net.minecraft.class_3222;
-import net.minecraft.class_3225;
-import net.minecraft.class_3965;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,49 +21,38 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.4-1.0.1.jar:com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.class */
-@Mixin({class_3225.class})
+@Mixin(ServerPlayerInteractionManager.class)
 public abstract class ServerPlayerInteractionManagerMixin {
 
     @Shadow
     @Final
-    protected class_3222 field_14008;
+    protected ServerPlayerEntity player;
 
-    @Inject(method = {"method_14263"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorBlockBreaking(class_2338 pos, class_2846.class_2847 action, class_2350 direction, int worldHeight, int sequence, CallbackInfo ci) {
-        if (SurvivalAidVisitors.isVisitor(this.field_14008)) {
-            SurvivalAidVisitors.notifyBlocked(this.field_14008);
+    @Inject(method = "clickSlot", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorItemInteraction(int syncId, int slotId, int button, int actionType, CallbackInfo ci) {
+        if (SurvivalAidVisitors.isVisitor(this.player)) {
+            SurvivalAidVisitors.notifyBlocked(this.player);
             ci.cancel();
         }
     }
 
-    @Inject(method = {"method_14266"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorTryBreakBlock(class_2338 pos, CallbackInfoReturnable<Boolean> cir) {
-        if (SurvivalAidToolProtection.shouldBlock(this.field_14008, this.field_14008.method_6047())) {
+    @Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorTryBreakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+        if (SurvivalAidToolProtection.shouldBlock(this.player, this.player.getMainHandStack())) {
             cir.setReturnValue(false);
-        } else if (SurvivalAidVisitors.isVisitor(this.field_14008)) {
-            SurvivalAidVisitors.notifyBlocked(this.field_14008);
+        } else if (SurvivalAidVisitors.isVisitor(this.player)) {
+            SurvivalAidVisitors.notifyBlocked(this.player);
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = {"method_14256"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorItemInteraction(class_3222 player, class_1937 world, class_1799 stack, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
-        if (SurvivalAidToolProtection.shouldBlock(player, stack)) {
-            cir.setReturnValue(class_1269.field_5814);
-        } else if (SurvivalAidVisitors.isVisitor(player)) {
-            SurvivalAidVisitors.notifyBlocked(player);
-            cir.setReturnValue(class_1269.field_5814);
-        }
-    }
-
-    @Inject(method = {"method_14262"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorBlockInteraction(class_3222 player, class_1937 world, class_1799 stack, class_1268 hand, class_3965 hitResult, CallbackInfoReturnable<class_1269> cir) {
-        if (SurvivalAidToolProtection.shouldBlock(player, stack)) {
-            cir.setReturnValue(class_1269.field_5814);
-        } else if (SurvivalAidVisitors.isVisitor(player)) {
-            SurvivalAidVisitors.notifyBlocked(player);
-            cir.setReturnValue(class_1269.field_5814);
+    @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorBlockInteraction(PlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+        if (SurvivalAidToolProtection.shouldBlock(this.player, stack)) {
+            cir.setReturnValue(ActionResult.PASS);
+        } else if (SurvivalAidVisitors.isVisitor(this.player)) {
+            SurvivalAidVisitors.notifyBlocked(this.player);
+            cir.setReturnValue(ActionResult.PASS);
         }
     }
 }

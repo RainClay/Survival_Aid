@@ -2,7 +2,7 @@ package com.survivalaid.features;
 
 import carpet.api.settings.Rule;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.3-1.0.1.jar:com/survivalaid/features/AutoEatFoodRule.class */
+/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/features/AutoEatFoodRule.class */
 public final class AutoEatFoodRule {
 
     @Rule(categories = {"survival", "survival_aid"})

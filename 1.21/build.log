@@ -1,0 +1,1147 @@
+Starting a Gradle Daemon, 1 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+> Configure project :
+Fabric Loom: 1.17.17
+=== Loom extension type: net.fabricmc.loom.extension.LoomGradleExtensionImpl_Decorated ===
+  addRemapConfiguration(String, Closure) -> RemapConfigurationSettings
+  addRemapperExtension(Class, Class, Closure) -> void
+  attachModelProperties() -> void
+  attachOwner(ModelObject, DisplayName) -> void
+  decompilers(Closure) -> void
+  generatedFrom() -> Class
+  getAccessWidenerPath() -> RegularFileProperty
+  getAsDynamicObject() -> DynamicObject
+  getBuildFeatures() -> BuildFeatures
+  getCompileRemapConfigurations() -> List
+  getConventionMapping() -> ConventionMapping
+  getCustomMinecraftManifest() -> Property
+  getCustomMinecraftMetadata() -> Property
+  getDecompilerOptions() -> NamedDomainObjectContainer
+  getDefaultMixinRemapType() -> Property
+  getDefaultMixinRemapTypeEnum() -> Provider
+  getDeprecationHelper() -> DeprecationHelper
+  getEnableModProvidedJavadoc() -> Property
+  getEnableTransitiveAccessWideners() -> Property
+  getExtensions() -> ExtensionContainer
+  getFabricModJsonPath() -> RegularFileProperty
+  getFiles() -> LoomFiles
+  getGameJarProcessors() -> ListProperty
+  getInstallerData() -> InstallerData
+  getInterfaceInjection() -> InterfaceInjectionExtensionAPI
+  getIntermediaryMinecraftProvider() -> IntermediaryMinecraftProvider
+  getIntermediaryUrl() -> Property
+  getIntermediateMappingsProvider() -> IntermediateMappingsProvider
+  getKnownIndyBsms() -> SetProperty
+  getLayeredMappingFactories() -> Collection
+  getLibraryProcessors() -> ListProperty
+  getLog4jConfigs() -> ConfigurableFileCollection
+  getMappingConfiguration() -> MappingConfiguration
+  getMappingsFile() -> File
+  getMetaClass() -> MetaClass
+  getMetadataProvider() -> MinecraftMetadataProvider
+  getMinecraftJarConfiguration() -> Property
+  getMinecraftJarProcessors() -> ListProperty
+  getMinecraftProvider() -> MinecraftProvider
+  getMinecraftVersion() -> Provider
+  getMixin() -> MixinExtension
+  getModVersion() -> String
+  getModelIdentityDisplayName() -> Describable
+  getMods() -> NamedDomainObjectContainer
+  getNamedMinecraftJars() -> FileCollection
+  getNamedMinecraftProvider() -> NamedMinecraftProvider
+  getProductionNamespace() -> Property
+  getProductionNamespaceEnum() -> Provider
+  getProject() -> Project
+  getProperty(String) -> Object
+  getRemapConfigurations() -> NamedDomainObjectList
+  getRemapJsrAnnotationsToJetBrains() -> Property
+  getRemapperExtensions() -> ListProperty
+  getRunConfigs() -> NamedDomainObjectContainer
+  getRuns() -> NamedDomainObjectContainer
+  getRuntimeOnlyLog4j() -> Property
+  getRuntimeOnlyLwjglGraphics() -> Property
+  getRuntimeRemapConfigurations() -> List
+  getSplitModDependencies() -> Property
+  getTaskThatOwnsThisObject() -> Task
+  getTransitiveAccessWideners() -> List
+  getUncompressNestedJars() -> Property
+  getUnmappedModCollection() -> ConfigurableFileCollection
+  getUseIntermediateMappings() -> Property
+  getVersionsManifests() -> ManifestLocations
+  hasProperty(String) -> boolean
+  hasUsefulDisplayName() -> boolean
+  installerData(InstallerData) -> void
+  interfaceInjection(Closure) -> void
+  intermediaryMinecraftProvider(IntermediaryMinecraftProvider) -> void
+  intermediateMappingsProvider(IntermediateMappingsProvider) -> void
+  invokeMethod(String, Object) -> Object
+  isCollectingDependencyVerificationMetadata() -> boolean
+  isConfigurationCacheActive() -> boolean
+  isProjectIsolationActive() -> boolean
+  layered(Closure) -> Dependency
+  mappingConfiguration(MappingConfiguration) -> void
+  metadataProvider(MinecraftMetadataProvider) -> void
+  minecraftProvider(MinecraftProvider) -> void
+  mixin(Closure) -> void
+  mods(Closure) -> void
+  namedMinecraftProvider(NamedMinecraftProvider) -> void
+  publicType() -> Class
+  refreshDeps(boolean) -> void
+  runs(Closure) -> void
+  setAccessWidenerPath(Object) -> void
+  setCustomMinecraftManifest(Object) -> void
+  setCustomMinecraftMetadata(Object) -> void
+  setDefaultMixinRemapType(Object) -> void
+  setEnableModProvidedJavadoc(Object) -> void
+  setEnableTransitiveAccessWideners(Object) -> void
+  setFabricModJsonPath(Object) -> void
+  setGameJarProcessors(Object) -> void
+  setInstallerData(InstallerData) -> void
+  setIntermediaryMinecraftProvider(IntermediaryMinecraftProvider) -> void
+  setIntermediaryUrl(Object) -> void
+  setIntermediateMappingsProvider(Class, Closure) -> void
+  setIntermediateMappingsProvider(IntermediateMappingsProvider) -> void
+  setKnownIndyBsms(Object) -> void
+  setLibraryProcessors(Object) -> void
+  setLog4jConfigs(Object) -> void
+  setMappingConfiguration(MappingConfiguration) -> void
+  setMetaClass(MetaClass) -> void
+  setMetadataProvider(MinecraftMetadataProvider) -> void
+  setMinecraftJarConfiguration(Object) -> void
+  setMinecraftJarProcessors(Object) -> void
+  setMinecraftProvider(MinecraftProvider) -> void
+  setNamedMinecraftProvider(NamedMinecraftProvider) -> void
+  setProductionNamespace(Object) -> void
+  setProperty(String, Object) -> void
+  setRemapJsrAnnotationsToJetBrains(Object) -> void
+  setRemapperExtensions(Object) -> void
+  setRuntimeOnlyLog4j(Object) -> void
+  setRuntimeOnlyLwjglGraphics(Object) -> void
+  setSplitModDependencies(Object) -> void
+  setUncompressNestedJars(Object) -> void
+  setUnmappedModCollection(Object) -> void
+  setUseIntermediateMappings(Object) -> void
+  versionsManifests(Closure) -> void
+
+> Task :compileJava
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:4: error: cannot find symbol
+import net.minecraft.class_1676;
+                    ^
+  symbol:   class class_1676
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1937;
+                    ^
+  symbol:   class class_1937
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:6: error: cannot find symbol
+import net.minecraft.class_2248;
+                    ^
+  symbol:   class class_2248
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:7: error: cannot find symbol
+import net.minecraft.class_2338;
+                    ^
+  symbol:   class class_2338
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:8: error: cannot find symbol
+import net.minecraft.class_2680;
+                    ^
+  symbol:   class class_2680
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:9: error: cannot find symbol
+import net.minecraft.class_3965;
+                    ^
+  symbol:   class class_3965
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:10: error: cannot find symbol
+import net.minecraft.class_4970;
+                    ^
+  symbol:   class class_4970
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                  ^
+  symbol:   class class_2680
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                    ^
+  symbol:   class class_1937
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                      ^
+  symbol:   class class_2338
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                                      ^
+  symbol:   class class_2248
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                                                              ^
+  symbol:   class class_2338
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+    private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                    ^
+  symbol:   class class_2680
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+    private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                      ^
+  symbol:   class class_1937
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+    private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                                        ^
+  symbol:   class class_2338
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+    private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                                                        ^
+  symbol:   class class_2680
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+    private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                           ^
+  symbol:   class class_1937
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+    private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                             ^
+  symbol:   class class_2680
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+    private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                                               ^
+  symbol:   class class_3965
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+    private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                                                               ^
+  symbol:   class class_1676
+  location: class AbstractBlockMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:3: error: cannot find symbol
+import net.minecraft.class_2680;
+                    ^
+  symbol:   class class_2680
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:4: error: cannot find symbol
+import net.minecraft.class_8113;
+                    ^
+  symbol:   class class_8113
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:12: error: cannot find symbol
+    void survivalAid$setBlockState(class_2680 class_2680Var);
+                                   ^
+  symbol:   class class_2680
+  location: interface BlockDisplayEntityAccessor
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BotMinecartPreserveMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1297;
+                    ^
+  symbol:   class class_1297
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BotMinecartPreserveMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1657;
+                    ^
+  symbol:   class class_1657
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:4: error: cannot find symbol
+import net.minecraft.class_2338;
+                    ^
+  symbol:   class class_2338
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:5: error: cannot find symbol
+import net.minecraft.class_3218;
+                    ^
+  symbol:   class class_3218
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:6: error: cannot find symbol
+import net.minecraft.class_4274;
+                    ^
+  symbol:   class class_4274
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:16: error: cannot find symbol
+    private void survivalAid$disableVillageCatSpawn(class_3218 world, class_2338 pos, CallbackInfoReturnable<Integer> cir) {
+                                                    ^
+  symbol:   class class_3218
+  location: class CatSpawnerMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:16: error: cannot find symbol
+    private void survivalAid$disableVillageCatSpawn(class_3218 world, class_2338 pos, CallbackInfoReturnable<Integer> cir) {
+                                                                      ^
+  symbol:   class class_2338
+  location: class CatSpawnerMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:4: error: cannot find symbol
+import net.minecraft.class_1297;
+                    ^
+  symbol:   class class_1297
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1548;
+                    ^
+  symbol:   class class_1548
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1927;
+                    ^
+  symbol:   class class_1927
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1937;
+                    ^
+  symbol:   class class_1937
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+    private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                             ^
+  symbol:   class class_1937
+  location: class CreeperEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+    private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                                               ^
+  symbol:   class class_1297
+  location: class CreeperEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: package class_1937 does not exist
+    private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                                                                                                                       ^
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+    private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+            ^
+  symbol:   class class_1927
+  location: class CreeperEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1297;
+                    ^
+  symbol:   class class_1297
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1657;
+                    ^
+  symbol:   class class_1657
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:17: error: cannot find symbol
+    private void survivalAid$skipConfiguredSameTypeStackingPush(class_1297 otherEntity, CallbackInfo ci) {
+                                                                ^
+  symbol:   class class_1297
+  location: class EntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:25: error: package class_1297 does not exist
+    private void survivalAid$dismountBotBeforeRemove(class_1297.class_5529 reason, CallbackInfo ci) {
+                                                               ^
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:4: error: cannot find symbol
+import net.minecraft.class_1269;
+                    ^
+  symbol:   class class_1269
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1778;
+                    ^
+  symbol:   class class_1778
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1799;
+                    ^
+  symbol:   class class_1799
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1838;
+                    ^
+  symbol:   class class_1838
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:8: error: cannot find symbol
+import net.minecraft.class_1937;
+                    ^
+  symbol:   class class_1937
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:9: error: cannot find symbol
+import net.minecraft.class_3468;
+                    ^
+  symbol:   class class_3468
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:19: error: cannot find symbol
+    private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                               ^
+  symbol:   class class_1838
+  location: class FireChargeItemMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:19: error: cannot find symbol
+    private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                                                          ^
+  symbol:   class class_1269
+  location: class FireChargeItemMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:4: error: cannot find symbol
+import net.minecraft.class_1269;
+                    ^
+  symbol:   class class_1269
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1309;
+                    ^
+  symbol:   class class_1309
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1786;
+                    ^
+  symbol:   class class_1786
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1799;
+                    ^
+  symbol:   class class_1799
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:8: error: cannot find symbol
+import net.minecraft.class_1838;
+                    ^
+  symbol:   class class_1838
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:9: error: cannot find symbol
+import net.minecraft.class_1937;
+                    ^
+  symbol:   class class_1937
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:10: error: cannot find symbol
+import net.minecraft.class_3468;
+                    ^
+  symbol:   class class_3468
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                               ^
+  symbol:   class class_1838
+  location: class FlintAndSteelItemMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:20: error: cannot find symbol
+    private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                                                          ^
+  symbol:   class class_1269
+  location: class FlintAndSteelItemMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:8: error: cannot find symbol
+import net.minecraft.class_1542;
+                    ^
+  symbol:   class class_1542
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:9: error: cannot find symbol
+import net.minecraft.class_1657;
+                    ^
+  symbol:   class class_1657
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:10: error: cannot find symbol
+import net.minecraft.class_1799;
+                    ^
+  symbol:   class class_1799
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:11: error: cannot find symbol
+import net.minecraft.class_2561;
+                    ^
+  symbol:   class class_2561
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:12: error: cannot find symbol
+import net.minecraft.class_2960;
+                    ^
+  symbol:   class class_2960
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:13: error: cannot find symbol
+import net.minecraft.class_3222;
+                    ^
+  symbol:   class class_3222
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:14: error: cannot find symbol
+import net.minecraft.class_7923;
+                    ^
+  symbol:   class class_7923
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:24: error: cannot find symbol
+    private void survivalAid$handleItemPickup(class_1657 player, CallbackInfo ci) {
+                                              ^
+  symbol:   class class_1657
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+    private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                            ^
+  symbol:   class class_1657
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+    private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                                               ^
+  symbol:   class class_2960
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+    private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                                                                  ^
+  symbol:   class class_1799
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:109: error: cannot find symbol
+    private String[] survivalAid$parsePlayerItemPickupRule(String entry, class_2960 currentItemId) {
+                                                                         ^
+  symbol:   class class_2960
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:136: error: cannot find symbol
+    private boolean survivalAid$ruleMentionsItem(String entry, class_2960 currentItemId) {
+                                                               ^
+  symbol:   class class_2960
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:146: error: cannot find symbol
+    private boolean survivalAid$matchesConfiguredItem(String configuredItem, class_2960 itemId) {
+                                                                             ^
+  symbol:   class class_2960
+  location: class ItemEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:4: error: cannot find symbol
+import net.minecraft.class_1282;
+                    ^
+  symbol:   class class_1282
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1297;
+                    ^
+  symbol:   class class_1297
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1309;
+                    ^
+  symbol:   class class_1309
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:16: error: cannot find symbol
+    private void survivalAid$ignoreConfiguredEntityCramming(class_1282 source, float amount, CallbackInfoReturnable<Boolean> cir) {
+                                                            ^
+  symbol:   class class_1282
+  location: class LivingEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/NetherPortalBlockMixin.java:3: error: cannot find symbol
+import net.minecraft.class_2423;
+                    ^
+  symbol:   class class_2423
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1268;
+                    ^
+  symbol:   class class_1268
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1269;
+                    ^
+  symbol:   class class_1269
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1297;
+                    ^
+  symbol:   class class_1297
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:8: error: cannot find symbol
+import net.minecraft.class_1657;
+                    ^
+  symbol:   class class_1657
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:9: error: cannot find symbol
+import net.minecraft.class_3222;
+                    ^
+  symbol:   class class_3222
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+    private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                           ^
+  symbol:   class class_1297
+  location: class PlayerEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+    private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                                              ^
+  symbol:   class class_1268
+  location: class PlayerEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+    private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                                                                                      ^
+  symbol:   class class_1269
+  location: class PlayerEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:39: error: cannot find symbol
+    private void survivalAid$blockVisitorEntityAttack(class_1297 target, CallbackInfo ci) {
+                                                      ^
+  symbol:   class class_1297
+  location: class PlayerEntityMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:4: error: cannot find symbol
+import net.minecraft.class_2824;
+                    ^
+  symbol:   class class_2824
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:5: error: cannot find symbol
+import net.minecraft.class_3222;
+                    ^
+  symbol:   class class_3222
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:6: error: cannot find symbol
+import net.minecraft.class_3244;
+                    ^
+  symbol:   class class_3244
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:7: error: cannot find symbol
+import net.minecraft.class_7472;
+                    ^
+  symbol:   class class_7472
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:19: error: cannot find symbol
+    public class_3222 field_14140;
+           ^
+  symbol:   class class_3222
+  location: class ServerPlayNetworkHandlerMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:22: error: cannot find symbol
+    private void survivalAid$blockVisitorEntityInteraction(class_2824 packet, CallbackInfo ci) {
+                                                           ^
+  symbol:   class class_2824
+  location: class ServerPlayNetworkHandlerMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:30: error: cannot find symbol
+    private void survivalAid$blockVisitorCommands(class_7472 packet, CallbackInfo ci) {
+                                                  ^
+  symbol:   class class_7472
+  location: class ServerPlayNetworkHandlerMixin
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:5: error: cannot find symbol
+import net.minecraft.class_1268;
+                    ^
+  symbol:   class class_1268
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:6: error: cannot find symbol
+import net.minecraft.class_1269;
+                    ^
+  symbol:   class class_1269
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:7: error: cannot find symbol
+import net.minecraft.class_1799;
+                    ^
+  symbol:   class class_1799
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:8: error: cannot find symbol
+import net.minecraft.class_1937;
+                    ^
+  symbol:   class class_1937
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:9: error: cannot find symbol
+import net.minecraft.class_2338;
+                    ^
+  symbol:   class class_2338
+  location: package net.minecraft
+/storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:10: error: cannot find symbol
+import net.minecraft.class_2350;
+                    ^
+  symbol:   class class_2350
+  location: package net.minecraft
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+100 errors
+
+> Task :compileJava FAILED
+
+[Incubating] Problems report is available at: file:///storage/emulated/0/ide/survival_aid/1.21/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava' (registered by plugin class 'org.gradle.api.plugins.JavaBasePlugin').
+> Compilation failed; see the compiler output below.
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_1676;
+                      ^
+    symbol:   class class_1676
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1937;
+                      ^
+    symbol:   class class_1937
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_2248;
+                      ^
+    symbol:   class class_2248
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_2338;
+                      ^
+    symbol:   class class_2338
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_2680;
+                      ^
+    symbol:   class class_2680
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_3965;
+                      ^
+    symbol:   class class_3965
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:10: error: cannot find symbol
+  import net.minecraft.class_4970;
+                      ^
+    symbol:   class class_4970
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                    ^
+    symbol:   class class_2680
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                      ^
+    symbol:   class class_1937
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                        ^
+    symbol:   class class_2338
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                                        ^
+    symbol:   class class_2248
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeBlockOnRedstone(class_2680 state, class_1937 world, class_2338 pos, class_2248 sourceBlock, class_2338 sourcePos, boolean notify, CallbackInfo ci) {
+                                                                                                                                ^
+    symbol:   class class_2338
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+      private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                      ^
+    symbol:   class class_2680
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+      private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                        ^
+    symbol:   class class_1937
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+      private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                                          ^
+    symbol:   class class_2338
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:27: error: cannot find symbol
+      private void survivalAid$primeAddedPoweredBlock(class_2680 state, class_1937 world, class_2338 pos, class_2680 oldState, boolean notify, CallbackInfo ci) {
+                                                                                                          ^
+    symbol:   class class_2680
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+      private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                             ^
+    symbol:   class class_1937
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+      private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                               ^
+    symbol:   class class_2680
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+      private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                                                 ^
+    symbol:   class class_3965
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/AbstractBlockMixin.java:34: error: cannot find symbol
+      private void survivalAid$primeBlockOnBurningProjectile(class_1937 world, class_2680 state, class_3965 hit, class_1676 projectile, CallbackInfo ci) {
+                                                                                                                 ^
+    symbol:   class class_1676
+    location: class AbstractBlockMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:3: error: cannot find symbol
+  import net.minecraft.class_2680;
+                      ^
+    symbol:   class class_2680
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:4: error: cannot find symbol
+  import net.minecraft.class_8113;
+                      ^
+    symbol:   class class_8113
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BlockDisplayEntityAccessor.java:12: error: cannot find symbol
+      void survivalAid$setBlockState(class_2680 class_2680Var);
+                                     ^
+    symbol:   class class_2680
+    location: interface BlockDisplayEntityAccessor
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BotMinecartPreserveMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1297;
+                      ^
+    symbol:   class class_1297
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/BotMinecartPreserveMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1657;
+                      ^
+    symbol:   class class_1657
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_2338;
+                      ^
+    symbol:   class class_2338
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_3218;
+                      ^
+    symbol:   class class_3218
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_4274;
+                      ^
+    symbol:   class class_4274
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:16: error: cannot find symbol
+      private void survivalAid$disableVillageCatSpawn(class_3218 world, class_2338 pos, CallbackInfoReturnable<Integer> cir) {
+                                                      ^
+    symbol:   class class_3218
+    location: class CatSpawnerMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CatSpawnerMixin.java:16: error: cannot find symbol
+      private void survivalAid$disableVillageCatSpawn(class_3218 world, class_2338 pos, CallbackInfoReturnable<Integer> cir) {
+                                                                        ^
+    symbol:   class class_2338
+    location: class CatSpawnerMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_1297;
+                      ^
+    symbol:   class class_1297
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1548;
+                      ^
+    symbol:   class class_1548
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1927;
+                      ^
+    symbol:   class class_1927
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1937;
+                      ^
+    symbol:   class class_1937
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+      private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                               ^
+    symbol:   class class_1937
+    location: class CreeperEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+      private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                                                 ^
+    symbol:   class class_1297
+    location: class CreeperEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: cannot find symbol
+      private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+              ^
+    symbol:   class class_1927
+    location: class CreeperEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1297;
+                      ^
+    symbol:   class class_1297
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1657;
+                      ^
+    symbol:   class class_1657
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:17: error: cannot find symbol
+      private void survivalAid$skipConfiguredSameTypeStackingPush(class_1297 otherEntity, CallbackInfo ci) {
+                                                                  ^
+    symbol:   class class_1297
+    location: class EntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_1269;
+                      ^
+    symbol:   class class_1269
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1778;
+                      ^
+    symbol:   class class_1778
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1799;
+                      ^
+    symbol:   class class_1799
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1838;
+                      ^
+    symbol:   class class_1838
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_1937;
+                      ^
+    symbol:   class class_1937
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_3468;
+                      ^
+    symbol:   class class_3468
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:19: error: cannot find symbol
+      private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                 ^
+    symbol:   class class_1838
+    location: class FireChargeItemMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FireChargeItemMixin.java:19: error: cannot find symbol
+      private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                                                            ^
+    symbol:   class class_1269
+    location: class FireChargeItemMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_1269;
+                      ^
+    symbol:   class class_1269
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1309;
+                      ^
+    symbol:   class class_1309
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1786;
+                      ^
+    symbol:   class class_1786
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1799;
+                      ^
+    symbol:   class class_1799
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_1838;
+                      ^
+    symbol:   class class_1838
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_1937;
+                      ^
+    symbol:   class class_1937
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:10: error: cannot find symbol
+  import net.minecraft.class_3468;
+                      ^
+    symbol:   class class_3468
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                 ^
+    symbol:   class class_1838
+    location: class FlintAndSteelItemMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/FlintAndSteelItemMixin.java:20: error: cannot find symbol
+      private void survivalAid$primeClickedBlock(class_1838 context, CallbackInfoReturnable<class_1269> cir) {
+                                                                                            ^
+    symbol:   class class_1269
+    location: class FlintAndSteelItemMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_1542;
+                      ^
+    symbol:   class class_1542
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_1657;
+                      ^
+    symbol:   class class_1657
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:10: error: cannot find symbol
+  import net.minecraft.class_1799;
+                      ^
+    symbol:   class class_1799
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:11: error: cannot find symbol
+  import net.minecraft.class_2561;
+                      ^
+    symbol:   class class_2561
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:12: error: cannot find symbol
+  import net.minecraft.class_2960;
+                      ^
+    symbol:   class class_2960
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:13: error: cannot find symbol
+  import net.minecraft.class_3222;
+                      ^
+    symbol:   class class_3222
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:14: error: cannot find symbol
+  import net.minecraft.class_7923;
+                      ^
+    symbol:   class class_7923
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:24: error: cannot find symbol
+      private void survivalAid$handleItemPickup(class_1657 player, CallbackInfo ci) {
+                                                ^
+    symbol:   class class_1657
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+      private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                              ^
+    symbol:   class class_1657
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+      private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                                                 ^
+    symbol:   class class_2960
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:74: error: cannot find symbol
+      private boolean survivalAid$canPlayerPickConfiguredItem(class_1657 player, class_2960 itemId, class_1799 stack) {
+                                                                                                    ^
+    symbol:   class class_1799
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:109: error: cannot find symbol
+      private String[] survivalAid$parsePlayerItemPickupRule(String entry, class_2960 currentItemId) {
+                                                                           ^
+    symbol:   class class_2960
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:136: error: cannot find symbol
+      private boolean survivalAid$ruleMentionsItem(String entry, class_2960 currentItemId) {
+                                                                 ^
+    symbol:   class class_2960
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ItemEntityMixin.java:146: error: cannot find symbol
+      private boolean survivalAid$matchesConfiguredItem(String configuredItem, class_2960 itemId) {
+                                                                               ^
+    symbol:   class class_2960
+    location: class ItemEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_1282;
+                      ^
+    symbol:   class class_1282
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1297;
+                      ^
+    symbol:   class class_1297
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1309;
+                      ^
+    symbol:   class class_1309
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/LivingEntityMixin.java:16: error: cannot find symbol
+      private void survivalAid$ignoreConfiguredEntityCramming(class_1282 source, float amount, CallbackInfoReturnable<Boolean> cir) {
+                                                              ^
+    symbol:   class class_1282
+    location: class LivingEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/NetherPortalBlockMixin.java:3: error: cannot find symbol
+  import net.minecraft.class_2423;
+                      ^
+    symbol:   class class_2423
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1268;
+                      ^
+    symbol:   class class_1268
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1269;
+                      ^
+    symbol:   class class_1269
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1297;
+                      ^
+    symbol:   class class_1297
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_1657;
+                      ^
+    symbol:   class class_1657
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_3222;
+                      ^
+    symbol:   class class_3222
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+      private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                             ^
+    symbol:   class class_1297
+    location: class PlayerEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+      private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                                                ^
+    symbol:   class class_1268
+    location: class PlayerEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:20: error: cannot find symbol
+      private void survivalAid$blockVisitorEntityInteraction(class_1297 entity, class_1268 hand, CallbackInfoReturnable<class_1269> cir) {
+                                                                                                                        ^
+    symbol:   class class_1269
+    location: class PlayerEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/PlayerEntityMixin.java:39: error: cannot find symbol
+      private void survivalAid$blockVisitorEntityAttack(class_1297 target, CallbackInfo ci) {
+                                                        ^
+    symbol:   class class_1297
+    location: class PlayerEntityMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:4: error: cannot find symbol
+  import net.minecraft.class_2824;
+                      ^
+    symbol:   class class_2824
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_3222;
+                      ^
+    symbol:   class class_3222
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_3244;
+                      ^
+    symbol:   class class_3244
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_7472;
+                      ^
+    symbol:   class class_7472
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:19: error: cannot find symbol
+      public class_3222 field_14140;
+             ^
+    symbol:   class class_3222
+    location: class ServerPlayNetworkHandlerMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:22: error: cannot find symbol
+      private void survivalAid$blockVisitorEntityInteraction(class_2824 packet, CallbackInfo ci) {
+                                                             ^
+    symbol:   class class_2824
+    location: class ServerPlayNetworkHandlerMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.java:30: error: cannot find symbol
+      private void survivalAid$blockVisitorCommands(class_7472 packet, CallbackInfo ci) {
+                                                    ^
+    symbol:   class class_7472
+    location: class ServerPlayNetworkHandlerMixin
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:5: error: cannot find symbol
+  import net.minecraft.class_1268;
+                      ^
+    symbol:   class class_1268
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:6: error: cannot find symbol
+  import net.minecraft.class_1269;
+                      ^
+    symbol:   class class_1269
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:7: error: cannot find symbol
+  import net.minecraft.class_1799;
+                      ^
+    symbol:   class class_1799
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:8: error: cannot find symbol
+  import net.minecraft.class_1937;
+                      ^
+    symbol:   class class_1937
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:9: error: cannot find symbol
+  import net.minecraft.class_2338;
+                      ^
+    symbol:   class class_2338
+    location: package net.minecraft
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/ServerPlayerInteractionManagerMixin.java:10: error: cannot find symbol
+  import net.minecraft.class_2350;
+                      ^
+    symbol:   class class_2350
+    location: package net.minecraft
+  Note: Recompile with -Xlint:unchecked for details.
+  Note: Some input files use unchecked or unsafe operations.
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/CreeperEntityMixin.java:16: error: package class_1937 does not exist
+      private class_1927 survivalAid$controlCreeperBlockDamage(class_1937 world, class_1297 entity, double x, double y, double z, float power, class_1937.class_7867 sourceType) {
+                                                                                                                                                         ^
+  /storage/emulated/0/ide/survival_aid/1.21/src/main/java/com/survivalaid/mixin/EntityMixin.java:25: error: package class_1297 does not exist
+      private void survivalAid$dismountBotBeforeRemove(class_1297.class_5529 reason, CallbackInfo ci) {
+                                                                 ^
+  100 errors
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.5.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 21s
+1 actionable task: 1 executed

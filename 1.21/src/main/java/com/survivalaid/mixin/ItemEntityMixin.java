@@ -147,7 +147,7 @@ public abstract class ItemEntityMixin {
     @Inject(method = "ageItem", at = @At("HEAD"))
     private void survivalAid$preventDespawn(CallbackInfo ci) {
         if (NoItemDespawnRule.survivalAidNoItemDespawn && !((ItemEntity) (Object) this).getWorld().isClient()) {
-            ((ItemEntity) (Object) this).setRemoved();
+            ((ItemEntity) (Object) this).discard();
         }
     }
 }

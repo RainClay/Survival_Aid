@@ -1,6 +1,7 @@
 package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidTntLikeBlocks;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FireChargeItem;
 import net.minecraft.item.ItemUsageContext;
@@ -23,8 +24,8 @@ public abstract class FireChargeItemMixin {
         }
         PlayerEntity player = context.getPlayer();
         if (player != null) {
-            player.getStackInHand(context.getHand()).damage(1, player, player.getActiveHand());
-            player.incrementStat(Stats.USED.getOrCreateItem(Items.FIRE_CHARGE));
+            player.getStackInHand(context.getHand()).damage(1, player, EquipmentSlot.MAINHAND);
+            player.incrementStat(Stats.USED.getOrCreateStat(Items.FIRE_CHARGE));
         }
         cir.setReturnValue(ActionResult.success(world.isClient()));
     }

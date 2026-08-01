@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class LivingEntityMixin {
     @Inject(method = {"hurtServer"}, at = {@At("HEAD")}, cancellable = true)
     private void survivalAid$ignoreConfiguredEntityCramming(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        Entity entity = (Entity) this;
+        Entity entity = (Entity) (Object) this;
         if (source == entity.damageSources().cramming() && SurvivalAidRules.ignoresEntityCramming(entity)) {
             cir.setReturnValue(false);
         }

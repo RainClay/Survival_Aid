@@ -19,16 +19,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerEntityMixin {
     @Inject(method = {"interactOn"}, at = {@At("HEAD")}, cancellable = true)
     private void survivalAid$blockVisitorEntityInteraction(Entity entity, InteractionHand hand, Vec3 hitPos, CallbackInfoReturnable<InteractionResult> cir) {
-        ServerPlayer serverPlayer = (Player) this;
-        if (serverPlayer instanceof ServerPlayer) {
-            ServerPlayer player = serverPlayer;
+        Player playerObj = (Player) (Object) this;
+        if (playerObj instanceof ServerPlayer) {
+            ServerPlayer player = (ServerPlayer) playerObj;
             if (SurvivalAidToolProtection.shouldBlock(player, player.getItemInHand(hand))) {
                 cir.setReturnValue(InteractionResult.FAIL);
                 return;
             }
         }
-        if (serverPlayer instanceof ServerPlayer) {
-            ServerPlayer player2 = serverPlayer;
+        if (playerObj instanceof ServerPlayer) {
+            ServerPlayer player2 = (ServerPlayer) playerObj;
             if (SurvivalAidVisitors.isVisitor(player2)) {
                 SurvivalAidVisitors.notifyBlocked(player2);
                 cir.setReturnValue(InteractionResult.FAIL);
@@ -38,16 +38,16 @@ public abstract class PlayerEntityMixin {
 
     @Inject(method = {"attack"}, at = {@At("HEAD")}, cancellable = true)
     private void survivalAid$blockVisitorEntityAttack(Entity target, CallbackInfo ci) {
-        ServerPlayer serverPlayer = (Player) this;
-        if (serverPlayer instanceof ServerPlayer) {
-            ServerPlayer player = serverPlayer;
-            if (SurvivalAidToolProtection.shouldBlock(player, player.getMainHandItem())) {
+        Player playerObj = (Player) (Object) this;
+        if (playerObj instanceof ServerPlayer) {
+            ServerPlayer serverPlayer = (ServerPlayer) playerObj;
+            if (SurvivalAidToolProtection.shouldBlock(serverPlayer, serverPlayer.getMainHandItem())) {
                 ci.cancel();
                 return;
             }
         }
-        if (serverPlayer instanceof ServerPlayer) {
-            ServerPlayer player2 = serverPlayer;
+        if (playerObj instanceof ServerPlayer) {
+            ServerPlayer player2 = (ServerPlayer) playerObj;
             if (SurvivalAidVisitors.isVisitor(player2)) {
                 SurvivalAidVisitors.notifyBlocked(player2);
                 ci.cancel();

@@ -28,7 +28,7 @@ import com.survivalaid.features.VoidPlayerRescueYRule;
 import com.survivalaid.features.WorkstationHighLightRule;
 import java.util.stream.Collectors;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.10-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
+/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
 public final class SurvivalAidSettings {
     private static boolean extensionRegistered;
     private static boolean carpetRegistered;

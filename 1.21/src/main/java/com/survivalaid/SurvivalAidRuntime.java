@@ -208,7 +208,7 @@ public final class SurvivalAidRuntime {
                     }
                     foodStackCount++;
                     if (currentFoodLevel <= threshold) {
-                        player.getHungerManager().eat(foodComponent, player);
+                        player.getHungerManager().eat(foodComponent);
                         LAST_AUTO_EAT_TICK.put(playerId, currentTick);
                         stack.decrement(1);
                         player.sendMessage(Text.literal("自动进食：已吃 " + stack.getName().getString() + "。"), true);

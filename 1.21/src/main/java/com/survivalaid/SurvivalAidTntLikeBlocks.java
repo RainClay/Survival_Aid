@@ -13,7 +13,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion.DestructionType;
+import net.minecraft.world.World.ExplosionSourceType;
 
 public final class SurvivalAidTntLikeBlocks {
     private static final int FUSE_TICKS = 80;
@@ -57,7 +57,7 @@ public final class SurvivalAidTntLikeBlocks {
                 primedBlock.fuse--;
                 if (primedBlock.fuse <= 0) {
                     World world = primedBlock.entity.getWorld();
-                    world.createExplosion(primedBlock.entity, primedBlock.entity.getX(), primedBlock.entity.getY(), primedBlock.entity.getZ(), EXPLOSION_POWER, false, DestructionType.DESTROY);
+                    world.createExplosion(primedBlock.entity, primedBlock.entity.getX(), primedBlock.entity.getY(), primedBlock.entity.getZ(), EXPLOSION_POWER, false, ExplosionSourceType.BLOCK);
                     primedBlock.entity.kill();
                     iterator.remove();
                 }

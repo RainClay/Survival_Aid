@@ -1,6 +1,7 @@
 package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidTntLikeBlocks;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FlintAndSteelItem;
 import net.minecraft.item.ItemUsageContext;
@@ -23,8 +24,8 @@ public abstract class FlintAndSteelItemMixin {
         }
         PlayerEntity player = context.getPlayer();
         if (player != null) {
-            player.getStackInHand(context.getHand()).damage(1, player, player.getActiveHand());
-            player.incrementStat(Stats.USED.getOrCreateItem(Items.FLINT_AND_STEEL));
+            player.getStackInHand(context.getHand()).damage(1, player, EquipmentSlot.MAINHAND);
+            player.incrementStat(Stats.USED.getOrCreateStat(Items.FLINT_AND_STEEL));
         }
         cir.setReturnValue(ActionResult.success(world.isClient()));
     }

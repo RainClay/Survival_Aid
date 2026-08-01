@@ -30,11 +30,11 @@ public abstract class VillagerEntityMixin {
         if (!(villager.getWorld() instanceof ServerWorld serverWorld)) {
             return;
         }
-        Optional<GlobalPos> jobSite = villager.getBrain().getMemory(MemoryModuleType.JOB_SITE);
+        Optional<GlobalPos> jobSite = villager.getBrain().getOptionalMemory(MemoryModuleType.JOB_SITE);
         if (jobSite.isEmpty()) {
             return;
         }
-        BlockPos workstation = jobSite.get().getPos();
+        BlockPos workstation = jobSite.get().pos();
         BlockState blockState = serverWorld.getBlockState(workstation);
         DisplayEntity.BlockDisplayEntity display = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, serverWorld);
         display.refreshPositionAfterTeleport(workstation.getX() + 0.5, workstation.getY() + 1.5, workstation.getZ() + 0.5);

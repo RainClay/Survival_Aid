@@ -1,6 +1,6 @@
 # SurvivalAid 项目索引
 
-作者: Rain_Clay · License: MIT
+作者: Rain_Clay · License: CC0
 Fabric Carpet 扩展模组，支持 MC 1.21 → 1.21.11 + 26.1.2
 
 ---

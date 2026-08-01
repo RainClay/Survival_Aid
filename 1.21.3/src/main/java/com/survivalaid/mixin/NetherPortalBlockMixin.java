@@ -1,9 +1,8 @@
 package com.survivalaid.mixin;
 
-import net.minecraft.class_2423;
+import net.minecraft.block.NetherPortalBlock;
 import org.spongepowered.asm.mixin.Mixin;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.3-1.0.1.jar:com/survivalaid/mixin/NetherPortalBlockMixin.class */
-@Mixin({class_2423.class})
+@Mixin(NetherPortalBlock.class)
 public class NetherPortalBlockMixin {
 }

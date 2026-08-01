@@ -2,25 +2,24 @@ package com.survivalaid;
 
 import com.survivalaid.features.PreventToolBreakRule;
 import com.survivalaid.features.PreventToolBreakThresholdRule;
-import net.minecraft.class_1799;
-import net.minecraft.class_2561;
-import net.minecraft.class_3222;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.text.Text;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.2-1.0.1.jar:com/survivalaid/SurvivalAidToolProtection.class */
 public final class SurvivalAidToolProtection {
     private SurvivalAidToolProtection() {
     }
 
-    public static boolean shouldBlock(class_3222 player, class_1799 stack) {
-        if (!PreventToolBreakRule.survivalAidPreventToolBreak || stack == null || stack.method_7960() || !stack.method_7963()) {
+    public static boolean shouldBlock(PlayerEntity player, ItemStack stack) {
+        if (!PreventToolBreakRule.survivalAidPreventToolBreak || stack == null || stack.isEmpty() || !stack.isDamageable()) {
             return false;
         }
         int threshold = Math.max(0, PreventToolBreakThresholdRule.survivalAidPreventToolBreakThreshold);
-        int remainingDurability = stack.method_7936() - stack.method_7919();
+        int remainingDurability = stack.getMaxDamage() - stack.getDamage();
         if (remainingDurability > threshold) {
             return false;
         }
-        player.method_7353(class_2561.method_43470("耐久过低，已阻止使用：" + stack.method_7964().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
+        player.sendMessage(Text.literal("耐久过低，已阻止使用：" + stack.getName().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
         return true;
     }
 }

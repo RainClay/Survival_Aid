@@ -1,35 +1,35 @@
 package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidVisitors;
-import net.minecraft.class_2824;
-import net.minecraft.class_3222;
-import net.minecraft.class_3244;
-import net.minecraft.class_7472;
+import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.5-1.0.1.jar:com/survivalaid/mixin/ServerPlayNetworkHandlerMixin.class */
-@Mixin({class_3244.class})
+@Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixin {
-
     @Shadow
-    public class_3222 field_14140;
+    @Final
+    public ServerPlayerEntity player;
 
-    @Inject(method = {"method_12062"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorEntityInteraction(class_2824 packet, CallbackInfo ci) {
-        if (SurvivalAidVisitors.isVisitor(this.field_14140)) {
-            SurvivalAidVisitors.notifyBlocked(this.field_14140);
+    @Inject(method = "method_31681", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorEntityInteraction(PlayerActionC2SPacket packet, CallbackInfo ci) {
+        if (SurvivalAidVisitors.isVisitor(player)) {
+            SurvivalAidVisitors.notifyBlocked(player);
             ci.cancel();
         }
     }
 
-    @Inject(method = {"method_43667"}, at = {@At("HEAD")}, cancellable = true)
-    private void survivalAid$blockVisitorCommands(class_7472 packet, CallbackInfo ci) {
-        if (SurvivalAidVisitors.isVisitor(this.field_14140)) {
-            SurvivalAidVisitors.notifyCommandBlocked(this.field_14140);
+    @Inject(method = "method_31655", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorCommands(CommandExecutionC2SPacket packet, CallbackInfo ci) {
+        if (SurvivalAidVisitors.isVisitor(player)) {
+            SurvivalAidVisitors.notifyCommandBlocked(player);
             ci.cancel();
         }
     }

@@ -12,28 +12,29 @@ import com.survivalaid.features.VoidPlayerRescueYRule;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import net.minecraft.class_1293;
-import net.minecraft.class_1297;
-import net.minecraft.class_1304;
-import net.minecraft.class_1671;
-import net.minecraft.class_1792;
-import net.minecraft.class_1799;
-import net.minecraft.class_1802;
-import net.minecraft.class_2338;
-import net.minecraft.class_2561;
-import net.minecraft.class_3222;
-import net.minecraft.class_4174;
-import net.minecraft.class_9334;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.FoodComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.FireworkRocketEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21.1-1.0.1.jar:com/survivalaid/SurvivalAidRuntime.class */
 public final class SurvivalAidRuntime {
-    private static final Map<UUID, Boolean> LAST_DEAD_STATE = new HashMap();
-    private static final Map<UUID, Integer> LAST_DURABILITY_WARNING_TICK = new HashMap();
-    private static final Map<UUID, Integer> LAST_AUTO_EAT_TICK = new HashMap();
-    private static final Map<UUID, Integer> LAST_AUTO_EAT_DEBUG_TICK = new HashMap();
-    private static final Map<UUID, Integer> LAST_VOID_RESCUE_TICK = new HashMap();
-    private static final Map<class_1297, Integer> WORKSTATION_HIGHLIGHTS = new HashMap();
+    private static final Map<UUID, Boolean> LAST_DEAD_STATE = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_DURABILITY_WARNING_TICK = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_AUTO_EAT_TICK = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_AUTO_EAT_DEBUG_TICK = new HashMap<>();
+    private static final Map<UUID, Integer> LAST_VOID_RESCUE_TICK = new HashMap<>();
+    private static final Map<Entity, Integer> WORKSTATION_HIGHLIGHTS = new HashMap<>();
 
     private SurvivalAidRuntime() {
     }
@@ -41,7 +42,7 @@ public final class SurvivalAidRuntime {
     public static void tick(MinecraftServer server) {
         SurvivalAidTntLikeBlocks.tick(server);
         tickWorkstationHighlights();
-        for (class_3222 player : server.method_3760().method_14571()) {
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             handleDeathCoordinateMessage(player);
             handleLowHealthGlow(player);
             handleLowDurabilityWarning(server, player);
@@ -50,13 +51,13 @@ public final class SurvivalAidRuntime {
         }
     }
 
-    private static void handleVoidPlayerRescue(MinecraftServer server, class_3222 player) {
-        if (!VoidPlayerRescueRule.survivalAidVoidPlayerRescue || player.method_7337() || player.method_7325() || player.method_29504() || player.method_23318() > VoidPlayerRescueYRule.survivalAidVoidPlayerRescueY) {
+    private static void handleVoidPlayerRescue(MinecraftServer server, ServerPlayerEntity player) {
+        if (!VoidPlayerRescueRule.survivalAidVoidPlayerRescue || player.isSpectator() || player.isDead() || player.getY() <= VoidPlayerRescueYRule.survivalAidVoidPlayerRescueY) {
             return;
         }
-        UUID playerId = player.method_5667();
-        int currentTick = server.method_3780();
-        int lastRescueTick = LAST_VOID_RESCUE_TICK.getOrDefault(playerId, -200).intValue();
+        UUID playerId = player.getUuid();
+        int currentTick = server.getTicks();
+        int lastRescueTick = LAST_VOID_RESCUE_TICK.getOrDefault(playerId, -200);
         if (lastRescueTick > currentTick) {
             lastRescueTick = -200;
         }
@@ -65,128 +66,122 @@ public final class SurvivalAidRuntime {
             return;
         }
         boolean equippedElytra = ensureElytraEquipped(player);
-        if (!equippedElytra && !player.method_6118(class_1304.field_6174).method_31574(class_1802.field_8833)) {
-            LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-            player.method_7353(class_2561.method_43470("虚空救援：背包中没有可用鞘翅。"), true);
+        if (!equippedElytra && !player.getInventory().getArmorStack(EquipmentSlot.CHEST.ordinal()).isOf(Items.ELYTRA)) {
+            LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
+            player.sendMessage(Text.literal("虚空救援：背包中没有可用鞘翅。"), true);
             return;
         }
-        int rocketSlot = findItemSlot(player, class_1802.field_8639);
+        int rocketSlot = findItemSlot(player, Items.FIREWORK_ROCKET);
         if (rocketSlot < 0) {
-            LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-            player.method_7353(class_2561.method_43470("虚空救援：背包中没有火箭烟花。"), true);
+            LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
+            player.sendMessage(Text.literal("虚空救援：背包中没有火箭烟花。"), true);
             return;
         }
-        class_1799 rocket = player.method_31548().method_5438(rocketSlot);
-        class_1799 rocketForUse = rocket.method_46651(1);
-        rocket.method_7934(1);
-        class_1671 firework = new class_1671(player.method_37908(), rocketForUse, player);
-        player.method_37908().method_8649(firework);
-        player.method_5762(0.0d, 0.6d, 0.0d);
-        player.field_6037 = true;
-        LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.method_7353(class_2561.method_43470("虚空救援：已自动" + (equippedElytra ? "穿上鞘翅并" : "") + "使用火箭烟花。"), true);
+        ItemStack rocketStack = player.getInventory().getStack(rocketSlot);
+        ItemStack rocketForUse = rocketStack.split(1);
+        FireworkRocketEntity firework = new FireworkRocketEntity(player.getWorld(), rocketForUse, player);
+        player.getWorld().spawnEntity(firework);
+        player.addVelocity(0.0d, 0.6d, 0.0d);
+        player.startFallFlying();
+        LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
+        player.sendMessage(Text.literal("虚空救援：已自动" + (equippedElytra ? "穿上鞘翅并" : "") + "使用火箭烟花。"), true);
     }
 
-    private static boolean ensureElytraEquipped(class_3222 player) {
+    private static boolean ensureElytraEquipped(ServerPlayerEntity player) {
         int elytraSlot;
-        class_1799 chestStack = player.method_6118(class_1304.field_6174);
-        if (chestStack.method_31574(class_1802.field_8833) || (elytraSlot = findItemSlot(player, class_1802.field_8833)) < 0) {
+        ItemStack chestStack = player.getInventory().getArmorStack(EquipmentSlot.CHEST.ordinal());
+        if (chestStack.isOf(Items.ELYTRA) || (elytraSlot = findItemSlot(player, Items.ELYTRA)) < 0) {
             return false;
         }
-        class_1799 elytra = player.method_31548().method_5438(elytraSlot);
-        player.method_5673(class_1304.field_6174, elytra.method_7972());
-        player.method_31548().method_5447(elytraSlot, chestStack);
+        ItemStack elytra = player.getInventory().getStack(elytraSlot);
+        player.getInventory().setStack(5 + EquipmentSlot.CHEST.ordinal(), elytra.copy());
+        player.getInventory().setStack(elytraSlot, chestStack);
         return true;
     }
 
-    private static int findItemSlot(class_3222 player, class_1792 item) {
-        for (int slot = 0; slot < player.method_31548().method_5439(); slot++) {
-            class_1799 stack = player.method_31548().method_5438(slot);
-            if (!stack.method_7960() && stack.method_31574(item)) {
+    private static int findItemSlot(ServerPlayerEntity player, Item item) {
+        for (int slot = 0; slot < player.getInventory().size(); slot++) {
+            ItemStack stack = player.getInventory().getStack(slot);
+            if (!stack.isEmpty() && stack.isOf(item)) {
                 return slot;
             }
         }
         return -1;
     }
 
-    public static void trackWorkstationHighlight(class_1297 entity) {
+    public static void trackWorkstationHighlight(Entity entity) {
         WORKSTATION_HIGHLIGHTS.put(entity, 40);
     }
 
     private static void tickWorkstationHighlights() {
         WORKSTATION_HIGHLIGHTS.entrySet().removeIf(entry -> {
-            int remaining = ((Integer) entry.getValue()).intValue() - 1;
-            class_1297 entity = (class_1297) entry.getKey();
-            if (!entity.method_5805() || remaining <= 0) {
-                if (entity.method_5805()) {
-                    entity.method_5650(class_1297.class_5529.field_26999);
+            int remaining = entry.getValue() - 1;
+            Entity entity = entry.getKey();
+            if (!entity.isAlive() || remaining <= 0) {
+                if (entity.isAlive()) {
+                    entity.remove(Entity.RemovalReason.DISCARDED);
                     return true;
                 }
                 return true;
             }
-            entry.setValue(Integer.valueOf(remaining));
+            entry.setValue(remaining);
             return false;
         });
     }
 
-    private static void handleDeathCoordinateMessage(class_3222 player) {
-        UUID playerId = player.method_5667();
-        boolean isDead = player.method_29504();
-        boolean wasDead = LAST_DEAD_STATE.getOrDefault(playerId, false).booleanValue();
+    private static void handleDeathCoordinateMessage(ServerPlayerEntity player) {
+        UUID playerId = player.getUuid();
+        boolean isDead = player.isDead();
+        boolean wasDead = LAST_DEAD_STATE.getOrDefault(playerId, false);
         if (DeathCoordinateMessageRule.survivalAidDeathCoordinateMessage && isDead && !wasDead) {
-            class_2338 pos = player.method_24515();
-            String dimension = player.method_37908().method_27983().method_29177().toString();
-            player.method_7353(class_2561.method_43470("死亡位置：" + dimension + " " + pos.method_10263() + " " + pos.method_10264() + " " + pos.method_10260()), false);
+            BlockPos pos = player.getBlockPos();
+            String dimension = player.getWorld().getRegistryKey().getValue().toString();
+            player.sendMessage(Text.literal("死亡位置：" + dimension + " " + pos.getX() + " " + pos.getY() + " " + pos.getZ()), false);
         }
-        LAST_DEAD_STATE.put(playerId, Boolean.valueOf(isDead));
+        LAST_DEAD_STATE.put(playerId, isDead);
     }
 
-    private static void handleLowHealthGlow(class_3222 player) {
+    private static void handleLowHealthGlow(ServerPlayerEntity player) {
         if (!LowHealthGlowRule.survivalAidLowHealthGlow) {
-            if (player.method_5851()) {
-                player.method_5834(false);
+            if (player.isGlowing()) {
+                player.setGlowing(false);
             }
         } else {
             float threshold = Math.max(1.0f, LowHealthGlowThresholdRule.survivalAidLowHealthGlowThreshold);
-            boolean shouldGlow = !player.method_29504() && player.method_6032() <= threshold;
-            if (player.method_5851() != shouldGlow) {
-                player.method_5834(shouldGlow);
+            boolean shouldGlow = !player.isDead() && player.getHealth() <= threshold;
+            if (player.isGlowing() != shouldGlow) {
+                player.setGlowing(shouldGlow);
             }
         }
     }
 
-    private static void handleLowDurabilityWarning(MinecraftServer server, class_3222 player) {
+    private static void handleLowDurabilityWarning(MinecraftServer server, ServerPlayerEntity player) {
         int remainingDurability;
         if (LowDurabilityWarningRule.survivalAidLowDurabilityWarning <= 0) {
             return;
         }
-        class_1799 stack = player.method_6047();
-        if (stack.method_7960() || !stack.method_7963() || (remainingDurability = stack.method_7936() - stack.method_7919()) > LowDurabilityWarningRule.survivalAidLowDurabilityWarning) {
+        ItemStack stack = player.getMainHandStack();
+        if (stack.isEmpty() || !stack.isDamageable() || (remainingDurability = stack.getMaxDamage() - stack.getDamage()) > LowDurabilityWarningRule.survivalAidLowDurabilityWarning) {
             return;
         }
-        UUID playerId = player.method_5667();
-        int currentTick = server.method_3780();
-        int lastWarningTick = LAST_DURABILITY_WARNING_TICK.getOrDefault(playerId, -200).intValue();
+        UUID playerId = player.getUuid();
+        int currentTick = server.getTicks();
+        int lastWarningTick = LAST_DURABILITY_WARNING_TICK.getOrDefault(playerId, -200);
         if (currentTick - lastWarningTick < 200) {
             return;
         }
-        LAST_DURABILITY_WARNING_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.method_7353(class_2561.method_43470("耐久不足：" + stack.method_7964().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
+        LAST_DURABILITY_WARNING_TICK.put(playerId, currentTick);
+        player.sendMessage(Text.literal("耐久不足：" + stack.getName().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
     }
 
-    private static void handleAutoEatFood(MinecraftServer server, class_3222 player) {
-        if (!AutoEatFoodRule.survivalAidAutoEatFood || player.method_7337() || player.method_7325()) {
-            debugAutoEat(server, player, "跳过：规则=" + AutoEatFoodRule.survivalAidAutoEatFood + "，创造=" + player.method_7337() + "，旁观=" + player.method_7325());
+    private static void handleAutoEatFood(MinecraftServer server, ServerPlayerEntity player) {
+        if (!AutoEatFoodRule.survivalAidAutoEatFood || player.isSpectator() || player.isDead()) {
+            debugAutoEat(server, player, "跳过：规则=" + AutoEatFoodRule.survivalAidAutoEatFood + "，创造=" + player.isCreative() + "，旁观=" + player.isSpectator() + "，死亡=" + player.isDead());
             return;
         }
-        int threshold = Math.max(0, Math.min(19, AutoEatFoodThresholdRule.survivalAidAutoEatFoodThreshold));
-        if (player.method_7344().method_7586() > threshold || !player.method_7332(false)) {
-            debugAutoEat(server, player, "跳过：饥饿值=" + player.method_7344().method_7586() + "，阈值=" + threshold + "，canConsume=" + player.method_7332(false));
-            return;
-        }
-        UUID playerId = player.method_5667();
-        int currentTick = server.method_3780();
-        int lastAutoEatTick = LAST_AUTO_EAT_TICK.getOrDefault(playerId, -40).intValue();
+        UUID playerId = player.getUuid();
+        int currentTick = server.getTicks();
+        int lastAutoEatTick = LAST_AUTO_EAT_TICK.getOrDefault(playerId, -40);
         if (lastAutoEatTick > currentTick) {
             lastAutoEatTick = -40;
         }
@@ -194,65 +189,48 @@ public final class SurvivalAidRuntime {
             debugAutoEat(server, player, "跳过：自动进食冷却中，剩余 " + (40 - (currentTick - lastAutoEatTick)) + " tick");
             return;
         }
-        int expectedFoodLevel = player.method_7344().method_7586();
-        int eatenCount = 0;
+        int threshold = Math.max(0, Math.min(19, AutoEatFoodThresholdRule.survivalAidAutoEatFoodThreshold));
+        int currentFoodLevel = player.getHungerManager().getFoodLevel();
         int foodStackCount = 0;
         int skippedEnchantedGoldenAppleCount = 0;
-        String lastFoodName = "";
-        for (int slot = 0; slot < player.method_31548().method_5439(); slot++) {
-            class_1799 stack = player.method_31548().method_5438(slot);
-            if (!stack.method_7960()) {
-                if (stack.method_31574(class_1802.field_8367)) {
+        if (currentFoodLevel >= 20) {
+            return;
+        }
+        for (int slot = 0; slot < player.getInventory().size(); slot++) {
+            ItemStack stack = player.getInventory().getStack(slot);
+            if (!stack.isEmpty()) {
+                if (stack.isOf(Items.ENCHANTED_GOLDEN_APPLE)) {
                     skippedEnchantedGoldenAppleCount++;
                 } else {
-                    class_4174 food = (class_4174) stack.method_57824(class_9334.field_50075);
-                    if (food != null) {
-                        foodStackCount++;
-                        int amountToEat = Math.min(stack.method_7947(), Math.max(1, (((20 - expectedFoodLevel) + food.comp_2491()) - 1) / food.comp_2491()));
-                        for (int eatenFromStack = 0; eatenFromStack < amountToEat && player.method_7332(false); eatenFromStack++) {
-                            player.method_7344().method_7579(food);
-                            for (class_4174.class_9423 entry : food.comp_2495()) {
-                                class_1293 instance = entry.comp_2496();
-                                if (instance != null && (entry.comp_2497() >= 1.0f || player.method_59922().method_43057() < entry.comp_2497())) {
-                                    player.method_6092(new class_1293(instance));
-                                }
-                            }
-                            expectedFoodLevel = Math.min(20, expectedFoodLevel + food.comp_2491());
-                            eatenCount++;
-                            stack.method_7934(1);
-                            lastFoodName = stack.method_7964().getString();
-                            if (expectedFoodLevel >= 20 || eatenCount >= 8) {
-                                break;
-                            }
-                        }
-                        if (expectedFoodLevel >= 20 || eatenCount >= 8) {
-                            break;
-                        }
-                    } else {
+                    FoodComponent foodComponent = stack.getComponents().get(DataComponentTypes.FOOD);
+                    if (foodComponent == null) {
                         continue;
+                    }
+                    foodStackCount++;
+                    if (currentFoodLevel <= threshold) {
+                        player.getHungerManager().eat(foodComponent);
+                        LAST_AUTO_EAT_TICK.put(playerId, currentTick);
+                        stack.decrement(1);
+                        player.sendMessage(Text.literal("自动进食：已吃 " + stack.getName().getString() + "。"), true);
+                        return;
                     }
                 }
             }
         }
-        if (eatenCount > 0) {
-            LAST_AUTO_EAT_TICK.put(playerId, Integer.valueOf(currentTick));
-            player.method_7353(class_2561.method_43470("自动进食：已从背包消耗 " + eatenCount + " 个食物，最后食物：" + lastFoodName + "。"), true);
-        } else {
-            debugAutoEat(server, player, "未进食：可用食物组=" + foodStackCount + "，跳过附魔金苹果组=" + skippedEnchantedGoldenAppleCount + "，饥饿值=" + player.method_7344().method_7586() + "，canConsume=" + player.method_7332(false));
-        }
+        debugAutoEat(server, player, "未进食：可用食物组=" + foodStackCount + "，跳过附魔金苹果组=" + skippedEnchantedGoldenAppleCount + "，饥饿值=" + player.getHungerManager().getFoodLevel());
     }
 
-    private static void debugAutoEat(MinecraftServer server, class_3222 player, String message) {
+    private static void debugAutoEat(MinecraftServer server, ServerPlayerEntity player, String message) {
         if (!AutoEatFoodRule.survivalAidAutoEatFoodDebug) {
             return;
         }
-        UUID playerId = player.method_5667();
-        int currentTick = server.method_3780();
-        int lastDebugTick = LAST_AUTO_EAT_DEBUG_TICK.getOrDefault(playerId, -20).intValue();
+        UUID playerId = player.getUuid();
+        int currentTick = server.getTicks();
+        int lastDebugTick = LAST_AUTO_EAT_DEBUG_TICK.getOrDefault(playerId, -20);
         if (currentTick - lastDebugTick < 20) {
             return;
         }
-        LAST_AUTO_EAT_DEBUG_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.method_7353(class_2561.method_43470("自动进食调试：" + message), false);
+        LAST_AUTO_EAT_DEBUG_TICK.put(playerId, currentTick);
+        player.sendMessage(Text.literal("自动进食调试：" + message), false);
     }
 }

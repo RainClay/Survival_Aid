@@ -12,11 +12,16 @@ repositories {
 
 loom {
     useIntermediateMappings = true
+    productionNamespace = 'intermediary'
     mods {
         "survival_aid" {
             sourceSet sourceSets.main
         }
     }
+}
+
+configurations.compileClasspath {
+    exclude group: 'net.fabricmc.yarn'
 }
 
 dependencies {
@@ -25,6 +30,9 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     compileOnly "carpet:fabric-carpet:${project.carpet_version}"
+
+    // 强制使用 intermediary jar 进行编译
+    compileOnly files(file("${System.getProperty('user.home')}/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged-intermediary/${project.minecraft_version}-net.fabricmc.yarn.${project.yarn_mappings.replace('+build', '.1.21').replace('.', '_')}-v2/minecraft-merged-intermediary-${project.minecraft_version}-net.fabricmc.yarn.${project.yarn_mappings.replace('+build', '.1.21').replace('.', '_')}-v2.jar"))
 }
 
 processResources {

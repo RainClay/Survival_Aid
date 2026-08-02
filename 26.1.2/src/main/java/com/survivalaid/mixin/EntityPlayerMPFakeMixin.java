@@ -12,9 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityPlayerMPFakeMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void survivalAid$tagFakePlayer(CallbackInfo ci) {
-        if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
-            return;
-        }
         ((ServerPlayer) (Object) this).addTag(FakePlayerItemSearchRule.SURVIVAL_AID_FAKE_TAG);
     }
 }

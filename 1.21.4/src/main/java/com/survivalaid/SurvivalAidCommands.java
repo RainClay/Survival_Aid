@@ -257,7 +257,7 @@ public final class SurvivalAidCommands {
     private static List<String> searchOfflineFakePlayers(MinecraftServer server, Identifier itemId, Set<UUID> onlineUuids) {
         List<String> found = new ArrayList<>();
         try {
-            Path playerDataDir = server.getSavePath(WorldSavePath.PLAYERS);
+            Path playerDataDir = server.getSavePath(WorldSavePath.PLAYERDATA);
             if (!Files.isDirectory(playerDataDir)) {
                 return found;
             }

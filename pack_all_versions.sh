@@ -88,6 +88,8 @@ JSON
 rm -f "$OUT"
 cd "$STAGE"
 jar cf "$OUT" META-INF fabric.mod.json
-rm -rf "$STAGE"
 echo "=== Created $OUT ==="
+# leave $STAGE before deleting it, else a JVM launched from a deleted cwd dies
+cd "$DIR"
+rm -rf "$STAGE"
 jar tf "$OUT"

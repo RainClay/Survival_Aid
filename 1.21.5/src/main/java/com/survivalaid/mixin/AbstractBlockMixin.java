@@ -9,6 +9,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractBlock.class)
 public abstract class AbstractBlockMixin {
     @Inject(method = "neighborUpdate", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$primeBlockOnRedstone(BlockState state, World world, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify, CallbackInfo ci) {
+    private void survivalAid$primeBlockOnRedstone(BlockState state, World world, BlockPos pos, Block sourceBlock, WireOrientation orientation, boolean notify, CallbackInfo ci) {
         if (world.isReceivingRedstonePower(pos) && SurvivalAidTntLikeBlocks.prime(world, pos)) {
             ci.cancel();
         }

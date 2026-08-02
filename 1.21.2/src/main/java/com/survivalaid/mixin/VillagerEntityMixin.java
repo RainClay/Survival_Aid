@@ -10,6 +10,7 @@ import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @Mixin(VillagerEntity.class)
 public abstract class VillagerEntityMixin {
     @Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$highlightWorkstation(PlayerEntity player, CallbackInfoReturnable<ActionResult> cir) {
+    private void survivalAid$highlightWorkstation(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         if (!WorkstationHighLightRule.survivalAidWorkstationHighLight || !player.isCreative()) {
             return;
         }

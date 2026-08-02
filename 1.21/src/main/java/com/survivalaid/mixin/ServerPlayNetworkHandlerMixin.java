@@ -2,7 +2,7 @@ package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidVisitors;
 import net.minecraft.network.packet.c2s.play.CommandExecutionC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -19,7 +19,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     public ServerPlayerEntity player;
 
     @Inject(method = "onPlayerInteractEntity", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$blockVisitorEntityInteraction(PlayerActionC2SPacket packet, CallbackInfo ci) {
+    private void survivalAid$blockVisitorEntityInteraction(PlayerInteractEntityC2SPacket packet, CallbackInfo ci) {
         if (SurvivalAidVisitors.isVisitor(player)) {
             SurvivalAidVisitors.notifyBlocked(player);
             ci.cancel();

@@ -78,6 +78,8 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidWorkstationHighLight.desc", "潜行右键村民时以发光方块实体高亮其绑定的工作站位置。");
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.name", "假人矿车保护");
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.desc", "开启后，假人下线/被kill时先自动下车再移除，防止矿车消失或重复生成。");
+        translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.name", "假人物品搜索");
+        translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.desc", "开启后可使用 /survivalaid searchitem <物品ID> 搜索哪个假人携带指定物品及其数量。");
         addCarpetTranslationAliases(translations);
         return Map.copyOf(translations);
     }

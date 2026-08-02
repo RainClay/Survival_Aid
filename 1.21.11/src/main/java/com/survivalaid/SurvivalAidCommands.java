@@ -2,12 +2,20 @@ package com.survivalaid;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import carpet.patches.EntityPlayerMPFake;
+import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
@@ -15,16 +23,23 @@ public final class SurvivalAidCommands {
     }
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
-        dispatcher.register(CommandManager.literal("survivalaid").requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK)).then(CommandManager.literal("pickup").then(CommandManager.literal("allow").then(CommandManager.argument("item", StringArgumentType.word()).then(CommandManager.argument("player", StringArgumentType.word()).executes(context -> {
-            return allow((ServerCommandSource) context.getSource(), StringArgumentType.getString(context, "item"), StringArgumentType.getString(context, "player"));
-        })))).then(CommandManager.literal("deny").then(CommandManager.argument("item", StringArgumentType.word()).then(CommandManager.argument("player", StringArgumentType.word()).executes(context2 -> {
-            return deny((ServerCommandSource) context2.getSource(), StringArgumentType.getString(context2, "item"), StringArgumentType.getString(context2, "player"));
-        })))).then(CommandManager.literal("clear").executes(context3 -> {
-            return clearAll((ServerCommandSource) context3.getSource());
-        }).then(CommandManager.argument("item", StringArgumentType.word()).executes(context4 -> {
-            return clearItem((ServerCommandSource) context4.getSource(), StringArgumentType.getString(context4, "item"));
-        }))).then(CommandManager.literal("list").executes(context5 -> {
-            return list((ServerCommandSource) context5.getSource());
+        dispatcher.register(CommandManager.literal("survivalaid").requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK)).then(CommandManager.literal("pickup")
+            .then(CommandManager.literal("allow").then(CommandManager.argument("item", StringArgumentType.word()).then(CommandManager.argument("player", StringArgumentType.word()).executes(context -> {
+                return allow((ServerCommandSource) context.getSource(), StringArgumentType.getString(context, "item"), StringArgumentType.getString(context, "player"));
+            }))))
+            .then(CommandManager.literal("deny").then(CommandManager.argument("item", StringArgumentType.word()).then(CommandManager.argument("player", StringArgumentType.word()).executes(context2 -> {
+                return deny((ServerCommandSource) context2.getSource(), StringArgumentType.getString(context2, "item"), StringArgumentType.getString(context2, "player"));
+            }))))
+            .then(CommandManager.literal("clear").executes(context3 -> {
+                return clearAll((ServerCommandSource) context3.getSource());
+            }).then(CommandManager.argument("item", StringArgumentType.word()).executes(context4 -> {
+                return clearItem((ServerCommandSource) context4.getSource(), StringArgumentType.getString(context4, "item"));
+            })))
+            .then(CommandManager.literal("list").executes(context5 -> {
+                return list((ServerCommandSource) context5.getSource());
+            })))
+        .then(CommandManager.literal("searchitem").then(CommandManager.argument("item", StringArgumentType.word()).executes(context6 -> {
+            return searchItem((ServerCommandSource) context6.getSource(), StringArgumentType.getString(context6, "item"));
         }))));
     }
 
@@ -147,5 +162,59 @@ public final class SurvivalAidCommands {
             }
         }
         return value;
+    }
+
+    private static int searchItem(ServerCommandSource source, String itemName) {
+        if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
+            source.sendError(Text.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
+            return 0;
+        }
+        String normalizedItem = normalizeToken(itemName);
+        Identifier itemId = Identifier.tryParse(normalizedItem);
+        if (itemId == null) {
+            itemId = Identifier.tryParse("minecraft:" + normalizedItem);
+        }
+        if (itemId == null) {
+            source.sendError(Text.literal("无效的物品 ID: " + normalizedItem));
+            return 0;
+        }
+        Item item = Registries.ITEM.get(itemId);
+        if (item == null) {
+            source.sendError(Text.literal("找不到物品: " + itemId));
+            return 0;
+        }
+        MinecraftServer server = source.getServer();
+        final Identifier finalItemId = itemId;
+        List<String> found = new ArrayList<>();
+        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+            if (!(((Object) player) instanceof EntityPlayerMPFake)) {
+                continue;
+            }
+            int count = countItemInInventory(player, item);
+            if (count > 0) {
+                found.add(player.getName().getString() + " (" + count + " 个)");
+            }
+        }
+        if (found.isEmpty()) {
+            source.sendFeedback(() -> {
+                return Text.literal("没有假人携带 " + finalItemId + "。");
+            }, false);
+            return 0;
+        }
+        source.sendFeedback(() -> {
+            return Text.literal("携带 " + finalItemId + " 的假人: " + String.join(", ", found));
+        }, false);
+        return found.size();
+    }
+
+    private static int countItemInInventory(ServerPlayerEntity player, Item item) {
+        int count = 0;
+        for (int slot = 0; slot < player.getInventory().size(); slot++) {
+            ItemStack stack = player.getInventory().getStack(slot);
+            if (stack.isOf(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 }

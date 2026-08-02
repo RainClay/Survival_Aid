@@ -18,7 +18,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
     @Final
     public ServerPlayerEntity player;
 
-    @Inject(method = "method_31681", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onPlayerInteractEntity", at = @At("HEAD"), cancellable = true)
     private void survivalAid$blockVisitorEntityInteraction(PlayerActionC2SPacket packet, CallbackInfo ci) {
         if (SurvivalAidVisitors.isVisitor(player)) {
             SurvivalAidVisitors.notifyBlocked(player);
@@ -26,7 +26,7 @@ public abstract class ServerPlayNetworkHandlerMixin {
         }
     }
 
-    @Inject(method = "method_31655", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onCommandExecution", at = @At("HEAD"), cancellable = true)
     private void survivalAid$blockVisitorCommands(CommandExecutionC2SPacket packet, CallbackInfo ci) {
         if (SurvivalAidVisitors.isVisitor(player)) {
             SurvivalAidVisitors.notifyCommandBlocked(player);

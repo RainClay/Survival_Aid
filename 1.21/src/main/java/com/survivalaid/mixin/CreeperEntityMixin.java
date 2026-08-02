@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(CreeperEntity.class)
 public abstract class CreeperEntityMixin {
-    @Redirect(method = "createExplosion", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;DDDFZLnet/minecraft/world/World$ExplosionSourceType;)Lnet/minecraft/world/explosion/Explosion;"))
+    @Redirect(method = "explode", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;createExplosion(Lnet/minecraft/entity/Entity;DDDFZLnet/minecraft/world/World$ExplosionSourceType;)Lnet/minecraft/world/explosion/Explosion;"))
     private Explosion survivalAid$controlCreeperBlockDamage(World world, Entity entity, double x, double y, double z, float power, boolean causeFire, ExplosionSourceType sourceType) {
         if (CreeperGriefingControlRule.survivalAidCreeperGriefingControl) {
             return world.createExplosion(entity, x, y, z, power, causeFire, ExplosionSourceType.NONE);

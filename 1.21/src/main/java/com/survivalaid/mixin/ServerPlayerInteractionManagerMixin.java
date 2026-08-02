@@ -2,7 +2,6 @@ package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidToolProtection;
 import com.survivalaid.SurvivalAidVisitors;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -28,8 +27,8 @@ public abstract class ServerPlayerInteractionManagerMixin {
     @Final
     protected ServerPlayerEntity player;
 
-    @Inject(method = "clickSlot", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$blockVisitorItemInteraction(int syncId, int slotId, int button, int actionType, CallbackInfo ci) {
+    @Inject(method = "processBlockBreakingAction", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorBlockBreaking(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
         if (SurvivalAidVisitors.isVisitor(this.player)) {
             SurvivalAidVisitors.notifyBlocked(this.player);
             ci.cancel();
@@ -46,12 +45,22 @@ public abstract class ServerPlayerInteractionManagerMixin {
         }
     }
 
-    @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$blockVisitorBlockInteraction(PlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
-        if (SurvivalAidToolProtection.shouldBlock(this.player, stack)) {
+    @Inject(method = "interactItem", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorItemInteraction(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+        if (SurvivalAidToolProtection.shouldBlock(player, stack)) {
             cir.setReturnValue(ActionResult.PASS);
-        } else if (SurvivalAidVisitors.isVisitor(this.player)) {
-            SurvivalAidVisitors.notifyBlocked(this.player);
+        } else if (SurvivalAidVisitors.isVisitor(player)) {
+            SurvivalAidVisitors.notifyBlocked(player);
+            cir.setReturnValue(ActionResult.PASS);
+        }
+    }
+
+    @Inject(method = "interactBlock", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$blockVisitorBlockInteraction(ServerPlayerEntity player, World world, ItemStack stack, Hand hand, BlockHitResult hitResult, CallbackInfoReturnable<ActionResult> cir) {
+        if (SurvivalAidToolProtection.shouldBlock(player, stack)) {
+            cir.setReturnValue(ActionResult.PASS);
+        } else if (SurvivalAidVisitors.isVisitor(player)) {
+            SurvivalAidVisitors.notifyBlocked(player);
             cir.setReturnValue(ActionResult.PASS);
         }
     }

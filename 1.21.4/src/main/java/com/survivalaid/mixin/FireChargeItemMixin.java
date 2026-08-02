@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FireChargeItem.class)
 public abstract class FireChargeItemMixin {
-    @Inject(method = "use", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "useOnBlock", at = @At("HEAD"), cancellable = true)
     private void survivalAid$primeClickedBlock(ItemUsageContext context, CallbackInfoReturnable<ActionResult> cir) {
         World world = context.getWorld();
         if (!SurvivalAidTntLikeBlocks.prime(world, context.getBlockPos(), context.getPlayer())) {

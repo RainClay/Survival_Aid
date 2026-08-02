@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(CatSpawner.class)
 public abstract class CatSpawnerMixin {
-    @Inject(method = "spawn", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "spawnInHouse", at = @At("HEAD"), cancellable = true)
     private void survivalAid$disableVillageCatSpawn(ServerWorld world, BlockPos pos, CallbackInfoReturnable<Integer> cir) {
         if (DisableVillageCatSpawnRule.survivalAidDisableVillageCatSpawn) {
             cir.setReturnValue(0);

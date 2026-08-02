@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(targets = "net/minecraft/entity/mob/EndermanEntity$PickUpBlockGoal")
 public abstract class EndermanPickUpBlockGoalMixin {
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "canStart", at = @At("HEAD"), cancellable = true)
     private void survivalAid$disableEndermanPickUpBlock(CallbackInfoReturnable<Boolean> cir) {
         if (NoEndermanGriefingRule.survivalAidNoEndermanGriefing) {
             cir.setReturnValue(false);

@@ -23,7 +23,7 @@ public abstract class ItemEntityMixin {
     @Shadow
     private int age;
 
-    @Inject(method = "pickup", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "onPlayerCollision", at = @At("HEAD"), cancellable = true)
     private void survivalAid$handleItemPickup(PlayerEntity player, CallbackInfo ci) {
         if (VisitorNoItemPickupRule.survivalAidVisitorNoItemPickup && (player instanceof ServerPlayerEntity serverPlayer)) {
             if (SurvivalAidVisitors.isVisitor(serverPlayer)) {
@@ -144,7 +144,7 @@ public abstract class ItemEntityMixin {
         return value;
     }
 
-    @Inject(method = "ageItem", at = @At("HEAD"))
+    @Inject(method = "tick", at = @At("HEAD"))
     private void survivalAid$preventDespawn(CallbackInfo ci) {
         if (NoItemDespawnRule.survivalAidNoItemDespawn && !((ItemEntity) (Object) this).getWorld().isClient()) {
             ((ItemEntity) (Object) this).discard();

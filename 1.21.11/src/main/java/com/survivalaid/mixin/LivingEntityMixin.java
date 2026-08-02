@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-    @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
-    private void survivalAid$ignoreConfiguredEntityCramming(DamageSource source, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+    private void survivalAid$ignoreConfiguredEntityCramming(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         Entity entity = (Entity) (Object) this;
         if (source == entity.getEntityWorld().getDamageSources().cramming() && SurvivalAidRules.ignoresEntityCramming(entity)) {
             cir.setReturnValue(false);

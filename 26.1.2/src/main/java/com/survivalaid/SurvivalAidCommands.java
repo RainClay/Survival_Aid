@@ -5,10 +5,28 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import carpet.patches.EntityPlayerMPFake;
 import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -26,17 +44,22 @@ public final class SurvivalAidCommands {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("survivalaid").requires(source -> {
             return source.permissions() != PermissionSet.NO_PERMISSIONS;
-        }).then(Commands.literal("pickup").then(Commands.literal("allow").then(Commands.argument("item", StringArgumentType.word()).then(Commands.argument("player", StringArgumentType.word()).executes(context -> {
-            return allow((CommandSourceStack) context.getSource(), StringArgumentType.getString(context, "item"), StringArgumentType.getString(context, "player"));
-        })))).then(Commands.literal("deny").then(Commands.argument("item", StringArgumentType.word()).then(Commands.argument("player", StringArgumentType.word()).executes(context2 -> {
-            return deny((CommandSourceStack) context2.getSource(), StringArgumentType.getString(context2, "item"), StringArgumentType.getString(context2, "player"));
-        })))).then(Commands.literal("clear").executes(context3 -> {
-            return clearAll((CommandSourceStack) context3.getSource());
-        }).then(Commands.argument("item", StringArgumentType.word()).executes(context4 -> {
-            return clearItem((CommandSourceStack) context4.getSource(), StringArgumentType.getString(context4, "item"));
-        }))).then(Commands.literal("list").executes(context5 -> {
-            return list((CommandSourceStack) context5.getSource());
-        })))).then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.word()).executes(context6 -> {
+        }).then(Commands.literal("pickup")
+            .then(Commands.literal("allow").then(Commands.argument("item", StringArgumentType.word()).then(Commands.argument("player", StringArgumentType.word()).executes(context -> {
+                return allow((CommandSourceStack) context.getSource(), StringArgumentType.getString(context, "item"), StringArgumentType.getString(context, "player"));
+            }))))
+            .then(Commands.literal("deny").then(Commands.argument("item", StringArgumentType.word()).then(Commands.argument("player", StringArgumentType.word()).executes(context2 -> {
+                return deny((CommandSourceStack) context2.getSource(), StringArgumentType.getString(context2, "item"), StringArgumentType.getString(context2, "player"));
+            }))))
+            .then(Commands.literal("clear").executes(context3 -> {
+                return clearAll((CommandSourceStack) context3.getSource());
+            }).then(Commands.argument("item", StringArgumentType.word()).executes(context4 -> {
+                return clearItem((CommandSourceStack) context4.getSource(), StringArgumentType.getString(context4, "item"));
+            })))
+            .then(Commands.literal("list").executes(context5 -> {
+                return list((CommandSourceStack) context5.getSource());
+            })))
+        .then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.word()).executes(context6 -> {
             return searchItem((CommandSourceStack) context6.getSource(), StringArgumentType.getString(context6, "item"));
         }))));
     }
@@ -137,7 +160,7 @@ public final class SurvivalAidCommands {
             source.sendFailure(Component.literal("无效的物品 ID: " + normalizedItem));
             return 0;
         }
-        Item item = BuiltInRegistries.ITEM.get(itemId);
+        Item item = BuiltInRegistries.ITEM.get(itemId).map(h -> h.value()).orElse(null);
         if (item == null) {
             source.sendFailure(Component.literal("找不到物品: " + itemId));
             return 0;
@@ -145,15 +168,18 @@ public final class SurvivalAidCommands {
         MinecraftServer server = source.getServer();
         final Identifier finalItemId = itemId;
         List<String> found = new ArrayList<>();
+        Set<UUID> onlineUuids = new HashSet<>();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (!(((Object) player) instanceof EntityPlayerMPFake)) {
                 continue;
             }
+            onlineUuids.add(player.getUUID());
             int count = countItemInInventory(player, item);
             if (count > 0) {
                 found.add(player.getName().getString() + " (" + count + " 个)");
             }
         }
+        found.addAll(searchOfflineFakePlayers(server, itemId, onlineUuids));
         if (found.isEmpty()) {
             source.sendSuccess(() -> {
                 return Component.literal("没有假人携带 " + finalItemId + "。");
@@ -214,5 +240,105 @@ public final class SurvivalAidCommands {
             }
         }
         return value;
+    }
+    private static List<String> searchOfflineFakePlayers(MinecraftServer server, Identifier itemId, Set<UUID> onlineUuids) {
+        List<String> found = new ArrayList<>();
+        try {
+            Path playerDataDir = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
+            if (!Files.isDirectory(playerDataDir)) {
+                return found;
+            }
+            Map<String, String> uuidToName = loadUsercache(server);
+            try (var stream = Files.list(playerDataDir)) {
+                stream.filter(p -> p.getFileName().toString().endsWith(".dat")).forEach(p -> {
+                    String fileName = p.getFileName().toString();
+                    String uuidStr = fileName.substring(0, fileName.length() - 4);
+                    UUID uuid;
+                    try {
+                        uuid = UUID.fromString(uuidStr);
+                    } catch (IllegalArgumentException e) {
+                        return;
+                    }
+                    if (uuid.version() != 3 || onlineUuids.contains(uuid)) {
+                        return;
+                    }
+                    int count = countItemInPlayerData(p, itemId);
+                    if (count > 0) {
+                        String name = uuidToName.getOrDefault(uuidStr.toLowerCase(), uuidStr);
+                        found.add(name + " (离线 " + count + " 个)");
+                    }
+                });
+            }
+        } catch (IOException e) {
+            // 离线搜索为尽力而为，失败不影响在线结果
+        }
+        return found;
+    }
+
+    private static Map<String, String> loadUsercache(MinecraftServer server) {
+        Map<String, String> map = new HashMap<>();
+        try {
+            Path usercache = server.getWorldPath(LevelResource.ROOT).resolve("usercache.json");
+            if (!Files.isReadable(usercache)) {
+                return map;
+            }
+            try (var reader = Files.newBufferedReader(usercache)) {
+                JsonArray arr = JsonParser.parseReader(reader).getAsJsonArray();
+                for (JsonElement element : arr) {
+                    JsonObject obj = element.getAsJsonObject();
+                    if (obj.has("name") && obj.has("uuid")) {
+                        map.put(obj.get("uuid").getAsString().toLowerCase(), obj.get("name").getAsString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 尽力而为
+        }
+        return map;
+    }
+
+    private static int countItemInPlayerData(Path file, Identifier itemId) {
+        try {
+            CompoundTag tag = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
+            return countInTag(tag.getList("Inventory"), itemId)
+                + countInTag(tag.getList("EnderItems"), itemId);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private static int countInTag(Optional<ListTag> listOpt, Identifier itemId) {
+        if (listOpt.isEmpty()) {
+            return 0;
+        }
+        ListTag list = listOpt.get();
+        int count = 0;
+        for (int i = 0; i < list.size(); i++) {
+            Optional<CompoundTag> stackOpt = list.getCompound(i);
+            if (stackOpt.isEmpty()) {
+                continue;
+            }
+            CompoundTag stack = stackOpt.get();
+            Optional<String> idOpt = stack.getString("id");
+            if (idOpt.isEmpty()) {
+                continue;
+            }
+            Identifier stackId = Identifier.tryParse(idOpt.get());
+            if (!itemId.equals(stackId)) {
+                continue;
+            }
+            int amount = 1;
+            Optional<Byte> byteVal = stack.getByte("count");
+            if (byteVal.isPresent()) {
+                amount = byteVal.get();
+            } else {
+                Optional<Integer> intVal = stack.getInt("count");
+                if (intVal.isPresent()) {
+                    amount = intVal.get();
+                }
+            }
+            count += amount;
+        }
+        return count;
     }
 }

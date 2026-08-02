@@ -2,13 +2,21 @@ package com.survivalaid;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import carpet.patches.EntityPlayerMPFake;
+import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
@@ -28,6 +36,8 @@ public final class SurvivalAidCommands {
             return clearItem((CommandSourceStack) context4.getSource(), StringArgumentType.getString(context4, "item"));
         }))).then(Commands.literal("list").executes(context5 -> {
             return list((CommandSourceStack) context5.getSource());
+        })))).then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.word()).executes(context6 -> {
+            return searchItem((CommandSourceStack) context6.getSource(), StringArgumentType.getString(context6, "item"));
         }))));
     }
 
@@ -111,6 +121,60 @@ public final class SurvivalAidCommands {
             return Component.literal("SurvivalAid pickup rules: " + value);
         }, false);
         return entries().size();
+    }
+
+    private static int searchItem(CommandSourceStack source, String itemName) {
+        if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
+            source.sendFailure(Component.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
+            return 0;
+        }
+        String normalizedItem = normalizeToken(itemName);
+        Identifier itemId = Identifier.tryParse(normalizedItem);
+        if (itemId == null) {
+            itemId = Identifier.tryParse("minecraft:" + normalizedItem);
+        }
+        if (itemId == null) {
+            source.sendFailure(Component.literal("无效的物品 ID: " + normalizedItem));
+            return 0;
+        }
+        Item item = BuiltInRegistries.ITEM.get(itemId);
+        if (item == null) {
+            source.sendFailure(Component.literal("找不到物品: " + itemId));
+            return 0;
+        }
+        MinecraftServer server = source.getServer();
+        final Identifier finalItemId = itemId;
+        List<String> found = new ArrayList<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!(((Object) player) instanceof EntityPlayerMPFake)) {
+                continue;
+            }
+            int count = countItemInInventory(player, item);
+            if (count > 0) {
+                found.add(player.getName().getString() + " (" + count + " 个)");
+            }
+        }
+        if (found.isEmpty()) {
+            source.sendSuccess(() -> {
+                return Component.literal("没有假人携带 " + finalItemId + "。");
+            }, false);
+            return 0;
+        }
+        source.sendSuccess(() -> {
+            return Component.literal("携带 " + finalItemId + " 的假人: " + String.join(", ", found));
+        }, false);
+        return found.size();
+    }
+
+    private static int countItemInInventory(ServerPlayer player, Item item) {
+        int count = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.is(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     private static List<String> entries() {

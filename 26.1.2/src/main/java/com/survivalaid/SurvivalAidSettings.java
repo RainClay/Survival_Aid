@@ -7,6 +7,7 @@ import com.survivalaid.features.BotMinecartPreserveRule;
 import com.survivalaid.features.CreeperGriefingControlRule;
 import com.survivalaid.features.DeathCoordinateMessageRule;
 import com.survivalaid.features.DisableVillageCatSpawnRule;
+import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.InstantItemPickupRule;
 import com.survivalaid.features.ItemPickupFilterRule;
 import com.survivalaid.features.LowDurabilityWarningRule;
@@ -28,7 +29,7 @@ import com.survivalaid.features.VoidPlayerRescueYRule;
 import com.survivalaid.features.WorkstationHighLightRule;
 import java.util.stream.Collectors;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
+/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
 public final class SurvivalAidSettings {
     private static boolean extensionRegistered;
     private static boolean carpetRegistered;
@@ -89,5 +90,6 @@ public final class SurvivalAidSettings {
         settingsManager.parseSettingsClass(VoidPlayerRescueCooldownRule.class);
         settingsManager.parseSettingsClass(WorkstationHighLightRule.class);
         settingsManager.parseSettingsClass(BotMinecartPreserveRule.class);
+        settingsManager.parseSettingsClass(FakePlayerItemSearchRule.class);
     }
 }

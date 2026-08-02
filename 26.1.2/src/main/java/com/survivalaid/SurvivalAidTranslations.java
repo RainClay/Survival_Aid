@@ -3,7 +3,7 @@ package com.survivalaid;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidTranslations.class */
+/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidTranslations.class */
 public final class SurvivalAidTranslations {
     private static final Map<String, String> ZH_CN = createZhCnTranslations();
 
@@ -55,8 +55,13 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidTntLikeBlocks.desc", "开启后，方块被红石、打火石、火焰弹或燃烧投射物触发时，会生成一个显示原方块材质的点燃方块，倒计时后像 TNT 一样爆炸。");
         translations.put("survival_aid.rule.survivalAidVisitorPlayers.name", "访客玩家名单");
         translations.put("survival_aid.rule.survivalAidVisitorPlayers.desc", "逗号分隔的玩家名或 UUID 列表。名单内玩家不能破坏、放置、使用方块，不能使用物品交互，也不能攻击或交互实体。");
-        translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.name", "禁止末影人搬运方块");
-        translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.desc", "末影人不会搬起或放下任何方块。");
+        translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.name", "访客禁止捡拾物品");
+        translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.desc", "访客玩家不能捡拾掉落物。");
+        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.name", "地狱门传送方块完整轮廓");
+        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.desc", "将地狱门传送方块的轮廓箱恢复为完整方块，实体仍能穿过但可正常触发传送。");
+        translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.name", "禁止末影人破坏方块");
+        translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.desc", "末影人不能搬起或放置方块，也不能捡起掉落物形式的方块。");
+        translations.put("survival_aid.rule.survivalAidPreventToolBreak.name", "防止工具损坏");
         translations.put("survival_aid.rule.survivalAidPreventToolBreak.name", "防止工具损坏");
         translations.put("survival_aid.rule.survivalAidPreventToolBreak.desc", "工具耐久低于或等于 survivalAidPreventToolBreakThreshold 时停止使用，防止损坏。");
         translations.put("survival_aid.rule.survivalAidPreventToolBreakThreshold.name", "工具保护耐久阈值");
@@ -71,10 +76,10 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.desc", "访客玩家不能捡拾掉落物。");
         translations.put("survival_aid.rule.survivalAidWorkstationHighLight.name", "村民工作站高亮");
         translations.put("survival_aid.rule.survivalAidWorkstationHighLight.desc", "潜行右键村民时以发光方块实体高亮其绑定的工作站位置。");
-        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.name", "地狱门传送方块完整轮廓");
-        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.desc", "将地狱门传送方块的轮廓箱恢复为完整方块，实体仍能穿过但可正常触发传送。");
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.name", "假人矿车保护");
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.desc", "开启后，假人下线/被kill时先自动下车再移除，防止矿车消失或重复生成。");
+        translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.name", "假人物品搜索");
+        translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.desc", "开启后可使用 /survivalaid searchitem <物品ID> 搜索哪个假人携带指定物品及其数量。");
         addCarpetTranslationAliases(translations);
         return Map.copyOf(translations);
     }

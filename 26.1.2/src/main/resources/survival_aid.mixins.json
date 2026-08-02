@@ -19,7 +19,8 @@
     "ServerPlayerInteractionManagerMixin",
     "ServerPlayNetworkHandlerMixin",
     "BotMinecartPreserveMixin",
-    "NetherPortalBlockMixin"
+    "NetherPortalBlockMixin",
+    "EntityPlayerMPFakeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,146 @@
+name: build & release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: yarn
+            java: 21
+            versions: "1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11"
+          - name: mojang
+            java: 25
+            versions: "26.1.2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      # The wrapper points at a Tencent mirror; use the official distribution
+      # on GitHub-hosted runners for speed and reliability.
+      - name: Point gradle wrapper at official distribution
+        run: |
+          find . -path '*/gradle/wrapper/gradle-wrapper.properties' \
+            -exec sed -i 's#https://mirrors.tencent.com/gradle/#https://services.gradle.org/distributions/#' {} \;
+
+      - name: Build versions
+        run: |
+          set -e
+          for v in ${{ matrix.versions }}; do
+            echo "=== Building $v ==="
+            bash gradlew -p "$v" build -x test --no-daemon
+          done
+
+      - name: Upload jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: jars-${{ matrix.name }}
+          path: |
+            */build/libs/*.jar
+            !*/build/libs/*-sources.jar
+          if-no-files-found: error
+
+  pack:
+    name: pack wrapper
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Download jars
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Place jars into per-version build/libs
+        run: |
+          set -e
+          declare -A names=(
+            [1.21]="survival_aid-1.21-1.0.1.jar"
+            [1.21.1]="survival_aid-1.21.1.jar"
+            [1.21.2]="survival_aid-1.21.2.jar"
+            [1.21.3]="survival_aid-1.21.3.jar"
+            [1.21.4]="survival_aid-1.21.4.jar"
+            [1.21.5]="survival_aid-1.21.5.jar"
+            [1.21.6]="survival_aid-1.21.6.jar"
+            [1.21.10]="survival_aid-1.21.10.jar"
+            [1.21.11]="survival_aid-1.21.11.jar"
+            [26.1.2]="survival_aid-26.1.2.jar"
+          )
+          for v in "${!names[@]}"; do
+            n="${names[$v]}"
+            src=$(find artifacts -name "$n" | head -1)
+            if [ -z "$src" ]; then
+              echo "!! missing $n"; exit 1
+            fi
+            mkdir -p "$v/build/libs"
+            cp "$src" "$v/build/libs/$n"
+            echo "placed $v/build/libs/$n"
+          done
+
+      - name: Point gradle wrapper at official distribution
+        run: |
+          find . -path '*/gradle/wrapper/gradle-wrapper.properties' \
+            -exec sed -i 's#https://mirrors.tencent.com/gradle/#https://services.gradle.org/distributions/#' {} \;
+
+      - name: Pack wrapper jar
+        run: bash pack_all_versions.sh
+
+      - name: Assemble dist/
+        run: |
+          set -e
+          mkdir -p dist
+          cp SurvivalAid-all-versions.jar dist/
+          for v in 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2; do
+            cp "$v"/build/libs/*.jar dist/
+          done
+          # drop sources jars from dist
+          rm -f dist/*-sources.jar
+
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  release:
+    name: publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: Show dist
+        run: ls -la dist/
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

@@ -26,6 +26,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtSizeTracker;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -233,9 +235,20 @@ public final class SurvivalAidCommands {
     private static int countItemInInventory(ServerPlayerEntity player, Item item) {
         int count = 0;
         for (int slot = 0; slot < player.getInventory().size(); slot++) {
-            ItemStack stack = player.getInventory().getStack(slot);
-            if (stack.isOf(item)) {
-                count += stack.getCount();
+            count += countStackOnline(player.getInventory().getStack(slot), item);
+        }
+        return count;
+    }
+
+    private static int countStackOnline(ItemStack stack, Item item) {
+        if (stack == null || stack.isEmpty()) {
+            return 0;
+        }
+        int count = stack.isOf(item) ? stack.getCount() : 0;
+        ContainerComponent container = stack.getComponents().get(DataComponentTypes.CONTAINER);
+        if (container != null) {
+            for (ItemStack inner : container.streamNonEmpty().toList()) {
+                count += countStackOnline(inner, item);
             }
         }
         return count;
@@ -259,7 +272,7 @@ public final class SurvivalAidCommands {
                     } catch (IllegalArgumentException e) {
                         return;
                     }
-                    if (uuid.version() != 3 || onlineUuids.contains(uuid)) {
+                    if (onlineUuids.contains(uuid)) {
                         return;
                     }
                     int count = countItemInPlayerData(p, itemId);
@@ -300,6 +313,9 @@ public final class SurvivalAidCommands {
     private static int countItemInPlayerData(Path file, Identifier itemId) {
         try {
             NbtCompound tag = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
+            if (!hasFakeTag(tag)) {
+                return 0;
+            }
             return countInTag(tag.getList("Inventory", NbtElement.COMPOUND_TYPE), itemId)
                 + countInTag(tag.getList("EnderItems", NbtElement.COMPOUND_TYPE), itemId);
         } catch (Exception e) {
@@ -307,26 +323,57 @@ public final class SurvivalAidCommands {
         }
     }
 
+    private static boolean hasFakeTag(NbtCompound tag) {
+        if (!tag.contains("Tags", NbtElement.LIST_TYPE)) {
+            return false;
+        }
+        NbtList tags = tag.getList("Tags", NbtElement.STRING_TYPE);
+        for (int i = 0; i < tags.size(); i++) {
+            if (FakePlayerItemSearchRule.SURVIVAL_AID_FAKE_TAG.equals(tags.getString(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static int countInTag(NbtList list, Identifier itemId) {
         int count = 0;
         for (int i = 0; i < list.size(); i++) {
-            NbtCompound stack = list.getCompound(i);
-            String id = stack.getString("id");
-            if (id.isEmpty()) {
-                continue;
-            }
-            Identifier stackId = Identifier.tryParse(id);
-            if (!itemId.equals(stackId)) {
-                continue;
-            }
-            int amount = 1;
-            if (stack.contains("count", NbtElement.BYTE_TYPE)) {
-                amount = stack.getByte("count");
-            } else if (stack.contains("count", NbtElement.INT_TYPE)) {
-                amount = stack.getInt("count");
-            }
-            count += amount;
+            count += countStack(list.getCompound(i), itemId);
         }
         return count;
+    }
+
+    private static int countStack(NbtCompound stack, Identifier itemId) {
+        if (stack == null || !stack.contains("id")) {
+            return 0;
+        }
+        int count = 0;
+        if (itemId.equals(Identifier.tryParse(stack.getString("id")))) {
+            count += stackCount(stack);
+        }
+        if (stack.contains("components")) {
+            NbtCompound components = stack.getCompound("components");
+            if (components.contains("minecraft:container")) {
+                NbtList container = components.getList("minecraft:container", NbtElement.COMPOUND_TYPE);
+                for (int i = 0; i < container.size(); i++) {
+                    NbtCompound entry = container.getCompound(i);
+                    if (entry.contains("item")) {
+                        count += countStack(entry.getCompound("item"), itemId);
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    private static int stackCount(NbtCompound stack) {
+        if (stack.contains("count", NbtElement.BYTE_TYPE)) {
+            return stack.getByte("count");
+        }
+        if (stack.contains("count", NbtElement.INT_TYPE)) {
+            return stack.getInt("count");
+        }
+        return 1;
     }
 }

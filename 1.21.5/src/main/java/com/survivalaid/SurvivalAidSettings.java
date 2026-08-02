@@ -32,7 +32,6 @@ import java.util.stream.Collectors;
 /* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
 public final class SurvivalAidSettings {
     private static boolean extensionRegistered;
-    private static boolean carpetRegistered;
 
     private SurvivalAidSettings() {
     }
@@ -44,18 +43,6 @@ public final class SurvivalAidSettings {
         parseRulesInto(SurvivalAidExtension.SETTINGS_MANAGER);
         extensionRegistered = true;
         return SurvivalAidExtension.SETTINGS_MANAGER.getCarpetRules().size();
-    }
-
-    public static synchronized int registerCarpetRules(SettingsManager settingsManager) {
-        if (settingsManager == null) {
-            return 0;
-        }
-        if (carpetRegistered) {
-            return settingsManager.getCarpetRules().size();
-        }
-        parseRulesInto(settingsManager);
-        carpetRegistered = true;
-        return settingsManager.getCarpetRules().size();
     }
 
     public static String getRuleNames() {

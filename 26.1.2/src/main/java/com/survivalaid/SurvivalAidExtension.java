@@ -30,8 +30,7 @@ public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
 
     public void onGameStarted() {
         int ruleCount = SurvivalAidSettings.registerRules();
-        int carpetRuleCount = SurvivalAidSettings.registerCarpetRules(CarpetServer.settingsManager);
-        LOGGER.info("{} Carpet extension started, {} extension rules registered, Carpet main manager now has {} rules: {}", new Object[]{MOD_NAME, Integer.valueOf(ruleCount), Integer.valueOf(carpetRuleCount), SurvivalAidSettings.getRuleNames()});
+        LOGGER.info("{} Carpet extension started, {} extension rules registered: {}", new Object[]{MOD_NAME, Integer.valueOf(ruleCount), SurvivalAidSettings.getRuleNames()});
     }
 
     public SettingsManager extensionSettingsManager() {

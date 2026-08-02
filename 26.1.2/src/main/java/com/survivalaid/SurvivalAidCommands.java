@@ -291,7 +291,7 @@ public final class SurvivalAidCommands {
     private static Map<String, String> loadUsercache(MinecraftServer server) {
         Map<String, String> map = new HashMap<>();
         try {
-            Path usercache = server.getWorldPath(LevelResource.ROOT).resolve("usercache.json");
+            Path usercache = server.getServerDirectory().resolve("usercache.json");
             if (!Files.isReadable(usercache)) {
                 return map;
             }

@@ -1,9 +1,5 @@
 package com.survivalaid;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import carpet.patches.EntityPlayerMPFake;
@@ -13,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -262,7 +257,6 @@ public final class SurvivalAidCommands {
             if (!Files.isDirectory(playerDataDir)) {
                 return found;
             }
-            Map<String, String> uuidToName = loadUsercache(server);
             try (var stream = Files.list(playerDataDir)) {
                 stream.filter(p -> p.getFileName().toString().endsWith(".dat")).forEach(p -> {
                     String fileName = p.getFileName().toString();
@@ -278,7 +272,7 @@ public final class SurvivalAidCommands {
                     }
                     int count = countItemInPlayerData(p, itemId);
                     if (count > 0) {
-                        String name = uuidToName.getOrDefault(uuidStr.toLowerCase(), uuidStr);
+                        String name = resolveFakePlayerName(server, uuid, uuidStr);
                         found.add(name + " (离线 " + count + " 个)");
                     }
                 });
@@ -289,26 +283,12 @@ public final class SurvivalAidCommands {
         return found;
     }
 
-    private static Map<String, String> loadUsercache(MinecraftServer server) {
-        Map<String, String> map = new HashMap<>();
+    private static String resolveFakePlayerName(MinecraftServer server, UUID uuid, String fallback) {
         try {
-            Path usercache = server.getSavePath(WorldSavePath.ROOT).resolve("usercache.json");
-            if (!Files.isReadable(usercache)) {
-                return map;
-            }
-            try (var reader = Files.newBufferedReader(usercache)) {
-                JsonArray arr = JsonParser.parseReader(reader).getAsJsonArray();
-                for (JsonElement element : arr) {
-                    JsonObject obj = element.getAsJsonObject();
-                    if (obj.has("name") && obj.has("uuid")) {
-                        map.put(obj.get("uuid").getAsString().toLowerCase(), obj.get("name").getAsString());
-                    }
-                }
-            }
+            return server.getUserCache().getByUuid(uuid).map(profile -> profile.getName()).orElse(fallback);
         } catch (Exception e) {
-            // 尽力而为
+            return fallback;
         }
-        return map;
     }
 
     private static int countItemInPlayerData(Path file, Identifier itemId) {

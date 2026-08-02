@@ -1,14 +1,31 @@
 package com.survivalaid;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import carpet.patches.EntityPlayerMPFake;
 import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
@@ -16,6 +33,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
@@ -188,15 +206,18 @@ public final class SurvivalAidCommands {
         MinecraftServer server = source.getServer();
         final Identifier finalItemId = itemId;
         List<String> found = new ArrayList<>();
+        Set<UUID> onlineUuids = new HashSet<>();
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             if (!(((Object) player) instanceof EntityPlayerMPFake)) {
                 continue;
             }
+            onlineUuids.add(player.getUuid());
             int count = countItemInInventory(player, item);
             if (count > 0) {
                 found.add(player.getName().getString() + " (" + count + " 个)");
             }
         }
+        found.addAll(searchOfflineFakePlayers(server, itemId, onlineUuids));
         if (found.isEmpty()) {
             source.sendFeedback(() -> {
                 return Text.literal("没有假人携带 " + finalItemId + "。");
@@ -216,6 +237,95 @@ public final class SurvivalAidCommands {
             if (stack.isOf(item)) {
                 count += stack.getCount();
             }
+        }
+        return count;
+    }
+
+    private static List<String> searchOfflineFakePlayers(MinecraftServer server, Identifier itemId, Set<UUID> onlineUuids) {
+        List<String> found = new ArrayList<>();
+        try {
+            Path playerDataDir = server.getSavePath(WorldSavePath.PLAYERS);
+            if (!Files.isDirectory(playerDataDir)) {
+                return found;
+            }
+            Map<String, String> uuidToName = loadUsercache(server);
+            try (var stream = Files.list(playerDataDir)) {
+                stream.filter(p -> p.getFileName().toString().endsWith(".dat")).forEach(p -> {
+                    String fileName = p.getFileName().toString();
+                    String uuidStr = fileName.substring(0, fileName.length() - 4);
+                    UUID uuid;
+                    try {
+                        uuid = UUID.fromString(uuidStr);
+                    } catch (IllegalArgumentException e) {
+                        return;
+                    }
+                    if (uuid.version() != 3 || onlineUuids.contains(uuid)) {
+                        return;
+                    }
+                    int count = countItemInPlayerData(p, itemId);
+                    if (count > 0) {
+                        String name = uuidToName.getOrDefault(uuidStr.toLowerCase(), uuidStr);
+                        found.add(name + " (离线 " + count + " 个)");
+                    }
+                });
+            }
+        } catch (IOException e) {
+            // 离线搜索为尽力而为，失败不影响在线结果
+        }
+        return found;
+    }
+
+    private static Map<String, String> loadUsercache(MinecraftServer server) {
+        Map<String, String> map = new HashMap<>();
+        try {
+            Path usercache = server.getSavePath(WorldSavePath.ROOT).resolve("usercache.json");
+            if (!Files.isReadable(usercache)) {
+                return map;
+            }
+            try (var reader = Files.newBufferedReader(usercache)) {
+                JsonArray arr = JsonParser.parseReader(reader).getAsJsonArray();
+                for (JsonElement element : arr) {
+                    JsonObject obj = element.getAsJsonObject();
+                    if (obj.has("name") && obj.has("uuid")) {
+                        map.put(obj.get("uuid").getAsString().toLowerCase(), obj.get("name").getAsString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 尽力而为
+        }
+        return map;
+    }
+
+    private static int countItemInPlayerData(Path file, Identifier itemId) {
+        try {
+            NbtCompound tag = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
+            return countInTag(tag.getList("Inventory", NbtElement.COMPOUND_TYPE), itemId)
+                + countInTag(tag.getList("EnderItems", NbtElement.COMPOUND_TYPE), itemId);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private static int countInTag(NbtList list, Identifier itemId) {
+        int count = 0;
+        for (int i = 0; i < list.size(); i++) {
+            NbtCompound stack = list.getCompound(i);
+            String id = stack.getString("id");
+            if (id.isEmpty()) {
+                continue;
+            }
+            Identifier stackId = Identifier.tryParse(id);
+            if (!itemId.equals(stackId)) {
+                continue;
+            }
+            int amount = 1;
+            if (stack.contains("count", NbtElement.BYTE_TYPE)) {
+                amount = stack.getByte("count");
+            } else if (stack.contains("count", NbtElement.INT_TYPE)) {
+                amount = stack.getInt("count");
+            }
+            count += amount;
         }
         return count;
     }

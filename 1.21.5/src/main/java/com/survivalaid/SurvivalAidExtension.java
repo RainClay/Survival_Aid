@@ -34,8 +34,6 @@ public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
     }
 
     public SettingsManager extensionSettingsManager() {
-        int ruleCount = SurvivalAidSettings.registerRules();
-        LOGGER.info("{} providing Carpet SettingsManager '{}' with {} rules.", new Object[]{MOD_NAME, SETTINGS_MANAGER.identifier(), Integer.valueOf(ruleCount)});
         return SETTINGS_MANAGER;
     }
 

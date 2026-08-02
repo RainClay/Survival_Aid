@@ -1,5 +1,6 @@
 package com.survivalaid;
 
+import carpet.CarpetServer;
 import carpet.api.settings.SettingsManager;
 import com.survivalaid.features.AutoEatFoodRule;
 import com.survivalaid.features.AutoEatFoodThresholdRule;
@@ -38,15 +39,15 @@ public final class SurvivalAidSettings {
 
     public static synchronized int registerRules() {
         if (extensionRegistered) {
-            return SurvivalAidExtension.SETTINGS_MANAGER.getCarpetRules().size();
+            return CarpetServer.settingsManager.getCarpetRules().size();
         }
-        parseRulesInto(SurvivalAidExtension.SETTINGS_MANAGER);
+        parseRulesInto(CarpetServer.settingsManager);
         extensionRegistered = true;
-        return SurvivalAidExtension.SETTINGS_MANAGER.getCarpetRules().size();
+        return CarpetServer.settingsManager.getCarpetRules().size();
     }
 
     public static String getRuleNames() {
-        return (String) SurvivalAidExtension.SETTINGS_MANAGER.getCarpetRules().stream().map(rule -> {
+        return (String) CarpetServer.settingsManager.getCarpetRules().stream().map(rule -> {
             return rule.name();
         }).sorted().collect(Collectors.joining(", "));
     }

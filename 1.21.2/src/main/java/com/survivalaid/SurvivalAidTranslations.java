@@ -80,6 +80,8 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.desc", "开启后，假人下线/被kill时先自动下车再移除，防止矿车消失或重复生成。");
         translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.name", "假人物品搜索");
         translations.put("survival_aid.rule.survivalAidFakePlayerItemSearch.desc", "开启后可使用 /survivalaid searchitem <物品ID> 搜索哪个假人携带指定物品及其数量。");
+        translations.put("survival_aid.rule.survivalAidFakePlayerScanAll.name", "离线假人扫描全部数据");
+        translations.put("survival_aid.rule.survivalAidFakePlayerScanAll.desc", "关闭（默认）时用 survivalaid_fake 标签识别离线假人并给假人打标签；开启时直接扫描全部离线玩家数据（不区分真假人），不再给假人打标签。");
         addCarpetTranslationAliases(translations);
         return Map.copyOf(translations);
     }

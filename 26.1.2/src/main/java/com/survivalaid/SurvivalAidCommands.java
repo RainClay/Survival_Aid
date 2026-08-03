@@ -313,7 +313,7 @@ public final class SurvivalAidCommands {
     private static int countItemInPlayerData(Path file, Identifier itemId) {
         try {
             CompoundTag tag = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
-            if (!hasFakeTag(tag)) {
+            if (!FakePlayerItemSearchRule.survivalAidFakePlayerScanAll && !hasFakeTag(tag)) {
                 return 0;
             }
             return countInTag(tag.getList("Inventory"), itemId)

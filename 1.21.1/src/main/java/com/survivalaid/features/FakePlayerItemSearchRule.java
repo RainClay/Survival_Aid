@@ -8,6 +8,9 @@ public final class FakePlayerItemSearchRule {
     @Rule(categories = {"survival", "survival_aid"})
     public static boolean survivalAidFakePlayerItemSearch = false;
 
+    @Rule(categories = {"survival", "survival_aid"})
+    public static boolean survivalAidFakePlayerScanAll = false;
+
     private FakePlayerItemSearchRule() {
     }
 }

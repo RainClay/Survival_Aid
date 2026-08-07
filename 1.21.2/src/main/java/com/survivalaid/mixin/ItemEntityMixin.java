@@ -144,7 +144,7 @@ public abstract class ItemEntityMixin {
     @Inject(method = "tick", at = @At("HEAD"))
     private void survivalAid$preventDespawn(CallbackInfo ci) {
         if (NoItemDespawnRule.survivalAidNoItemDespawn && !((ItemEntity) (Object) this).getWorld().isClient()) {
-            ((ItemEntity) (Object) this).discard();
+            ((ItemEntity) (Object) this).setNeverDespawn();
         }
     }
 }

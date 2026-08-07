@@ -21,7 +21,8 @@
     "BotMinecartPreserveMixin",
     "NetherPortalBlockMixin",
     "BlockDisplayEntityAccessor",
-    "EntityPlayerMPFakeMixin"
+    "EntityPlayerMPFakeMixin",
+    "HopperBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

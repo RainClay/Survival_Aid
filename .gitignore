@@ -39,3 +39,7 @@ replay_*.log
 *.hprof
 *.jfr
 .aider*
+
+# do not commit
+INDEX.md
+参考/

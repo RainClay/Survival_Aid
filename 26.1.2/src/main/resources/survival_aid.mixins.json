@@ -20,7 +20,8 @@
     "ServerPlayNetworkHandlerMixin",
     "BotMinecartPreserveMixin",
     "NetherPortalBlockMixin",
-    "EntityPlayerMPFakeMixin"
+    "EntityPlayerMPFakeMixin",
+    "HopperBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -65,19 +65,24 @@ public final class ProjectionNameProvider {
 
     private static int[] readOrigin(Object placement) {
         int[] def = {0, 0, 0};
-        try {
-            Object origin = placement.getClass().getMethod("getOrigin").invoke(placement);
-            if (origin == null) {
-                return def;
+        String[] candidates = {"getOrigin", "getPos", "getBlockPos", "getPosition"};
+        for (String m : candidates) {
+            try {
+                Object origin = placement.getClass().getMethod(m).invoke(placement);
+                if (origin == null) {
+                    continue;
+                }
+                Class<?> c = origin.getClass();
+                int x = ((Number) c.getMethod("getX").invoke(origin)).intValue();
+                int y = ((Number) c.getMethod("getY").invoke(origin)).intValue();
+                int z = ((Number) c.getMethod("getZ").invoke(origin)).intValue();
+                if (x != 0 || y != 0 || z != 0) {
+                    return new int[]{x, y, z};
+                }
+            } catch (Exception ignore) {
             }
-            Class<?> c = origin.getClass();
-            int x = ((Integer) c.getMethod("getX").invoke(origin)).intValue();
-            int y = ((Integer) c.getMethod("getY").invoke(origin)).intValue();
-            int z = ((Integer) c.getMethod("getZ").invoke(origin)).intValue();
-            return new int[]{x, y, z};
-        } catch (Exception e) {
-            return def;
         }
+        return def;
     }
 
     private static String invokeStr(Object target, String[] names) {

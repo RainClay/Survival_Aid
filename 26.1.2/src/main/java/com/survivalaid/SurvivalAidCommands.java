@@ -462,11 +462,7 @@ public final class SurvivalAidCommands {
                 unmatched.add("(" + t.worldPos.getX() + "," + t.worldPos.getY() + "," + t.worldPos.getZ() + ")");
                 continue;
             }
-            Map<Item, Integer> need = shortfall(real, t.required);
-            if (need.isEmpty()) {
-                continue;
-            }
-            if (fillContainerFromPlayer(real, player, need, missing) > 0) {
+            if (fillContainerSlots(real, player, t.slots, missing) > 0) {
                 filledContainers++;
             }
         }
@@ -506,73 +502,51 @@ public final class SurvivalAidCommands {
     }
 
     private static Container findContainerAt(Level world, BlockPos pos) {
-        int[] dx = {0, 1, -1, 0, 0, 0, 0};
-        int[] dy = {0, 0, 0, 1, -1, 0, 0};
-        int[] dz = {0, 0, 0, 0, 0, 1, -1};
-        for (int i = 0; i < dx.length; i++) {
-            BlockEntity be = world.getBlockEntity(pos.offset(dx[i], dy[i], dz[i]));
-            if (be instanceof Container c) {
-                return c;
-            }
+        BlockEntity be = world.getBlockEntity(pos);
+        if (be instanceof Container c) {
+            return c;
         }
         return null;
     }
 
-    private static Map<Item, Integer> containerContents(Container container) {
-        Map<Item, Integer> have = new HashMap<>();
-        for (int slot = 0; slot < container.getContainerSize(); slot++) {
-            ItemStack stack = container.getItem(slot);
-            if (!stack.isEmpty()) {
-                have.merge(stack.getItem(), stack.getCount(), Integer::sum);
-            }
-        }
-        return have;
-    }
-
-    private static Map<Item, Integer> shortfall(Container container, Map<Item, Integer> required) {
-        Map<Item, Integer> have = containerContents(container);
-        Map<Item, Integer> need = new HashMap<>();
-        for (Map.Entry<Item, Integer> e : required.entrySet()) {
-            int diff = e.getValue() - have.getOrDefault(e.getKey(), 0);
-            if (diff > 0) {
-                need.put(e.getKey(), diff);
-            }
-        }
-        return need;
-    }
-
-    private static int fillContainerFromPlayer(Container container, ServerPlayer player, Map<Item, Integer> need, Map<Item, Integer> missing) {
+    private static int fillContainerSlots(Container container, ServerPlayer player, Map<Integer, ProjectionSlot> slots, Map<Item, Integer> missing) {
         net.minecraft.world.entity.player.Inventory inv = player.getInventory();
-        int filledTypes = 0;
-        for (Map.Entry<Item, Integer> e : need.entrySet()) {
-            Item item = e.getKey();
-            int needed = e.getValue();
-            int taken = 0;
-            for (int slot = 0; slot < inv.getContainerSize() && taken < needed; slot++) {
-                ItemStack stack = inv.getItem(slot);
-                if (stack.isEmpty() || !stack.is(item)) {
-                    continue;
-                }
-                int toTake = Math.min(stack.getCount(), needed - taken);
-                ItemStack removed = inv.removeItem(slot, toTake);
-                if (removed.isEmpty()) {
-                    continue;
-                }
-                int placed = placeIntoContainers(List.of(container), removed);
-                taken += placed;
-                if (placed < removed.getCount()) {
-                    ItemStack leftover = removed.copyWithCount(removed.getCount() - placed);
-                    inv.placeItemBackInInventory(leftover);
-                }
+        int filledSlots = 0;
+        for (Map.Entry<Integer, ProjectionSlot> e : slots.entrySet()) {
+            int slot = e.getKey();
+            ProjectionSlot ps = e.getValue();
+            ItemStack cur = container.getItem(slot);
+            if (!cur.isEmpty() && cur.is(ps.item) && cur.getCount() >= ps.count) {
+                continue;
             }
-            if (taken > 0) {
-                filledTypes++;
-            }
-            if (taken < needed) {
-                missing.merge(item, needed - taken, Integer::sum);
+            int already = cur.is(ps.item) ? cur.getCount() : 0;
+            int need = ps.count - already;
+            int taken = takeFromPlayer(player, ps.item, need);
+            ItemStack set = new ItemStack(ps.item, already + taken);
+            container.setItem(slot, set);
+            filledSlots++;
+            if (taken < need) {
+                missing.merge(ps.item, need - taken, Integer::sum);
             }
         }
-        return filledTypes;
+        return filledSlots;
+    }
+
+    private static int takeFromPlayer(ServerPlayer player, Item item, int need) {
+        net.minecraft.world.entity.player.Inventory inv = player.getInventory();
+        int taken = 0;
+        for (int slot = 0; slot < inv.getContainerSize() && taken < need; slot++) {
+            ItemStack stack = inv.getItem(slot);
+            if (stack.isEmpty() || !stack.is(item)) {
+                continue;
+            }
+            int toTake = Math.min(stack.getCount(), need - taken);
+            ItemStack removed = inv.removeItem(slot, toTake);
+            if (!removed.isEmpty()) {
+                taken += removed.getCount();
+            }
+        }
+        return taken;
     }
 
     private static Set<String> parseExcludeItems(String cfg) {
@@ -636,7 +610,7 @@ public final class SurvivalAidCommands {
                     }
                 }
                 BlockPos worldPos = new BlockPos(state.originX + x, state.originY + y, state.originZ + z);
-                Map<Item, Integer> required = new HashMap<>();
+                Map<Integer, ProjectionSlot> slots = new HashMap<>();
                 Optional<ListTag> itemsOpt = te.getList("Items");
                 if (itemsOpt.isPresent()) {
                     ListTag items = itemsOpt.get();
@@ -650,65 +624,37 @@ public final class SurvivalAidCommands {
                         if (id.isEmpty() || excludeItems.contains(id)) {
                             continue;
                         }
+                        int slot = it.getByte("Slot").orElse((byte) 0);
                         int count = it.getByte("Count").orElse((byte) 0);
                         Item item = itemFromId(id);
                         if (item == null || item == Items.AIR) {
                             continue;
                         }
-                        required.merge(item, count, Integer::sum);
+                        slots.put(slot, new ProjectionSlot(item, count));
                     }
                 }
-                if (!required.isEmpty()) {
-                    result.add(new ProjectionContainerTarget(worldPos, required));
+                if (!slots.isEmpty()) {
+                    result.add(new ProjectionContainerTarget(worldPos, slots));
                 }
             }
         }
         return result;
     }
-
-    private static final class ProjectionContainerTarget {
-        final BlockPos worldPos;
-        final Map<Item, Integer> required;
-
-        ProjectionContainerTarget(BlockPos worldPos, Map<Item, Integer> required) {
-            this.worldPos = worldPos;
-            this.required = required;
+    private static final class ProjectionSlot {
+        final Item item;
+        final int count;
+        ProjectionSlot(Item item, int count) {
+            this.item = item;
+            this.count = count;
         }
     }
 
-
-    private static int placeIntoContainers(List<Container> containers, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return 0;
+    private static final class ProjectionContainerTarget {
+        final BlockPos worldPos;
+        final Map<Integer, ProjectionSlot> slots;
+        ProjectionContainerTarget(BlockPos worldPos, Map<Integer, ProjectionSlot> slots) {
+            this.worldPos = worldPos;
+            this.slots = slots;
         }
-        Item item = stack.getItem();
-        int count = stack.getCount();
-        int max = item.getDefaultMaxStackSize();
-        int placed = 0;
-        for (Container container : containers) {
-            for (int slot = 0; slot < container.getContainerSize() && count > 0; slot++) {
-                ItemStack cur = container.getItem(slot);
-                if (!cur.isEmpty() && cur.is(item) && cur.getCount() < max) {
-                    int add = Math.min(max - cur.getCount(), count);
-                    cur.grow(add);
-                    count -= add;
-                    placed += add;
-                }
-            }
-        }
-        for (Container container : containers) {
-            for (int slot = 0; slot < container.getContainerSize() && count > 0; slot++) {
-                if (container.getItem(slot).isEmpty()) {
-                    int put = Math.min(max, count);
-                    container.setItem(slot, stack.copyWithCount(put));
-                    count -= put;
-                    placed += put;
-                }
-            }
-        }
-        for (Container container : containers) {
-            container.setChanged();
-        }
-        return placed;
     }
 }

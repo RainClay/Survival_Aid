@@ -10,7 +10,8 @@
   "environment": "*",
   "entrypoints": {
     "main": ["com.survivalaid.SurvivalAidExtension"],
-    "carpet": ["com.survivalaid.SurvivalAidExtension"]
+    "carpet": ["com.survivalaid.SurvivalAidExtension"],
+    "client": ["com.survivalaid.SurvivalAidClient"]
   },
   "mixins": ["survival_aid.mixins.json"],
   "depends": {

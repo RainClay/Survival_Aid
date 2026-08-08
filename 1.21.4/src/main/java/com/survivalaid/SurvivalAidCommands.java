@@ -475,17 +475,34 @@ public final class SurvivalAidCommands {
         return result;
     }
 
+
+    private static long regionVolume(NbtCompound region) {
+        if (region.contains("Size", NbtElement.LIST_TYPE)) {
+            NbtList size = region.getList("Size", NbtElement.INT_TYPE);
+            if (size.size() >= 3) {
+                return Math.abs((long) size.getInt(0) * size.getInt(1) * size.getInt(2));
+            }
+        }
+        if (region.contains("Size", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound size = region.getCompound("Size");
+            long sx = size.contains("x") ? size.getInt("x") : 0;
+            long sy = size.contains("y") ? size.getInt("y") : 0;
+            long sz = size.contains("z") ? size.getInt("z") : 0;
+            return Math.abs(sx * sy * sz);
+        }
+        return 0;
+    }
+
     private static Map<Item, Integer> parseSchematicItems(Path file) throws IOException {
         NbtCompound root = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
         NbtCompound regions = root.getCompound("Regions");
         Map<String, Integer> blockCounts = new LinkedHashMap<>();
         for (String regionName : regions.getKeys()) {
             NbtCompound region = regions.getCompound(regionName);
-            NbtList size = region.getList("Size", NbtElement.INT_TYPE);
-            if (size.size() < 3) {
+            long volume = regionVolume(region);
+            if (volume <= 0) {
                 continue;
             }
-            long volume = (long) size.getInt(0) * size.getInt(1) * size.getInt(2);
             NbtList palette = region.getList("BlockStatePalette", NbtElement.COMPOUND_TYPE);
             if (palette.isEmpty()) {
                 continue;

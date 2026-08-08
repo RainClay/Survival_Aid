@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import carpet.patches.EntityPlayerMPFake;
 import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
+import com.survivalaid.features.ProjectionFillRule;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +28,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.storage.LevelResource;
@@ -35,8 +38,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
@@ -63,6 +72,9 @@ public final class SurvivalAidCommands {
             })))
         .then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.word()).executes(context6 -> {
             return searchItem((CommandSourceStack) context6.getSource(), StringArgumentType.getString(context6, "item"));
+        })))
+        .then(Commands.literal("fill").then(Commands.argument("schematic", StringArgumentType.word()).executes(context7 -> {
+            return fill((CommandSourceStack) context7.getSource(), StringArgumentType.getString(context7, "schematic"));
         }))));
     }
 
@@ -387,5 +399,249 @@ public final class SurvivalAidCommands {
         }
         Optional<Integer> intVal = stack.getInt("count");
         return intVal.orElse(1);
+    }
+
+    private static int fill(CommandSourceStack source, String schematicName) {
+        if (!ProjectionFillRule.survivalAidProjectionFill) {
+            source.sendFailure(Component.literal("投影填充规则未开启（/carpet survivalAidProjectionFill true）。"));
+            return 0;
+        }
+        ServerPlayer player = source.getPlayer();
+        if (player == null) {
+            source.sendFailure(Component.literal("须由玩家执行此命令。"));
+            return 0;
+        }
+        HitResult hit = player.pick(5.0, 0.0F, false);
+        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
+            source.sendFailure(Component.literal("请看着一个箱子/容器再执行。"));
+            return 0;
+        }
+        BlockPos pos = ((BlockHitResult) hit).getBlockPos();
+        BlockEntity blockEntity = player.level().getBlockEntity(pos);
+        if (!(blockEntity instanceof Container container)) {
+            source.sendFailure(Component.literal("目标方块不是容器（箱子/桶等）。"));
+            return 0;
+        }
+        String safeName = sanitizeSchematicName(schematicName);
+        if (safeName == null) {
+            source.sendFailure(Component.literal("无效的投影文件名。"));
+            return 0;
+        }
+        Path dir = source.getServer().getServerDirectory().resolve("schematics");
+        Path file = dir.resolve(safeName);
+        if (!Files.isRegularFile(file)) {
+            source.sendFailure(Component.literal("找不到投影文件: " + safeName + "（请放到服务器 schematics/ 目录）。"));
+            return 0;
+        }
+        Map<Item, Integer> required;
+        try {
+            required = parseSchematicItems(file);
+        } catch (Exception e) {
+            source.sendFailure(Component.literal("解析投影失败: " + e.getMessage()));
+            return 0;
+        }
+        if (required.isEmpty()) {
+            source.sendFailure(Component.literal("投影中没有需要填充的方块物品。"));
+            return 0;
+        }
+        Map<Item, Integer> missing = new HashMap<>();
+        int filledTypes = fillContainerFromPlayer(container, player, required, missing);
+        final Map<Item, Integer> finalMissing = missing;
+        source.sendSuccess(() -> {
+            String msg = "已填充 " + filledTypes + " 种物品到容器";
+            if (finalMissing.isEmpty()) {
+                return Component.literal(msg + "。");
+            }
+            StringBuilder sb = new StringBuilder(msg + "，缺少: ");
+            boolean first = true;
+            for (Map.Entry<Item, Integer> e : finalMissing.entrySet()) {
+                if (!first) {
+                    sb.append(", ");
+                }
+                first = false;
+                sb.append(BuiltInRegistries.ITEM.getKey(e.getKey())).append(' ').append(e.getValue());
+            }
+            return Component.literal(sb.toString());
+        }, true);
+        return filledTypes;
+    }
+
+    private static String sanitizeSchematicName(String name) {
+        String n = name.trim();
+        if (!n.matches("[A-Za-z0-9._-]+") || n.contains("..")) {
+            return null;
+        }
+        if (!n.endsWith(".litematic")) {
+            n = n + ".litematic";
+        }
+        return n;
+    }
+
+    private static Map<Item, Integer> parseSchematicItems(Path file) throws IOException {
+        CompoundTag root = NbtIo.readCompressed(file, NbtAccounter.unlimitedHeap());
+        Optional<CompoundTag> regionsOpt = root.getCompound("Regions");
+        Map<String, Integer> blockCounts = new LinkedHashMap<>();
+        if (regionsOpt.isEmpty()) {
+            return new LinkedHashMap<>();
+        }
+        CompoundTag regions = regionsOpt.get();
+        for (String regionName : regions.keySet()) {
+            Optional<CompoundTag> regionOpt = regions.getCompound(regionName);
+            if (regionOpt.isEmpty()) {
+                continue;
+            }
+            CompoundTag region = regionOpt.get();
+            Optional<ListTag> sizeOpt = region.getList("Size");
+            if (sizeOpt.isEmpty()) {
+                continue;
+            }
+            ListTag size = sizeOpt.get();
+            if (size.size() < 3) {
+                continue;
+            }
+            long volume = (long) size.getIntOr(0, 0) * size.getIntOr(1, 0) * size.getIntOr(2, 0);
+            Optional<ListTag> paletteOpt = region.getList("BlockStatePalette");
+            if (paletteOpt.isEmpty()) {
+                continue;
+            }
+            ListTag palette = paletteOpt.get();
+            if (palette.isEmpty()) {
+                continue;
+            }
+            List<String> paletteIds = new ArrayList<>();
+            for (int i = 0; i < palette.size(); i++) {
+                Optional<CompoundTag> entryOpt = palette.getCompound(i);
+                if (entryOpt.isEmpty()) {
+                    continue;
+                }
+                Optional<String> nameOpt = entryOpt.get().getString("Name");
+                nameOpt.ifPresent(paletteIds::add);
+            }
+            if (paletteIds.isEmpty()) {
+                continue;
+            }
+            Optional<long[]> statesOpt = region.getLongArray("BlockStates");
+            if (statesOpt.isEmpty()) {
+                continue;
+            }
+            long[] blockStates = statesOpt.get();
+            if (blockStates.length == 0) {
+                continue;
+            }
+            int bits = Math.max(1, (int) Math.ceil(Math.log(paletteIds.size()) / Math.log(2)));
+            long mask = bits >= 32 ? -1L : ((1L << bits) - 1L);
+            int[] counts = new int[paletteIds.size()];
+            for (int i = 0; i < volume; i++) {
+                int startBit = i * bits;
+                int arr = startBit >> 6;
+                int off = startBit & 63;
+                if (arr >= blockStates.length) {
+                    break;
+                }
+                long value;
+                if (off + bits <= 64) {
+                    value = (blockStates[arr] >>> off) & mask;
+                } else if (arr + 1 < blockStates.length) {
+                    value = ((blockStates[arr] >>> off) | (blockStates[arr + 1] << (64 - off))) & mask;
+                } else {
+                    value = (blockStates[arr] >>> off) & mask;
+                }
+                int idx = (int) value;
+                if (idx >= 0 && idx < counts.length) {
+                    counts[idx]++;
+                }
+            }
+            for (int i = 0; i < counts.length; i++) {
+                if (counts[i] > 0) {
+                    blockCounts.merge(paletteIds.get(i), counts[i], Integer::sum);
+                }
+            }
+        }
+        Map<Item, Integer> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Integer> e : blockCounts.entrySet()) {
+            Identifier id = Identifier.tryParse(e.getKey());
+            if (id == null && e.getKey().indexOf(':') < 0) {
+                id = Identifier.tryParse("minecraft:" + e.getKey());
+            }
+            if (id == null) {
+                continue;
+            }
+            Block block = BuiltInRegistries.BLOCK.get(id).map(h -> h.value()).orElse(null);
+            if (block == null) {
+                continue;
+            }
+            Item item = block.asItem();
+            if (item == null || item == Items.AIR) {
+                continue;
+            }
+            result.merge(item, e.getValue(), Integer::sum);
+        }
+        return result;
+    }
+
+    private static int fillContainerFromPlayer(Container container, ServerPlayer player, Map<Item, Integer> required, Map<Item, Integer> missing) {
+        net.minecraft.world.entity.player.Inventory inv = player.getInventory();
+        int filledTypes = 0;
+        for (Map.Entry<Item, Integer> e : required.entrySet()) {
+            Item item = e.getKey();
+            int needed = e.getValue();
+            int taken = 0;
+            for (int slot = 0; slot < inv.getContainerSize() && taken < needed; slot++) {
+                ItemStack stack = inv.getItem(slot);
+                if (stack.isEmpty() || !stack.is(item)) {
+                    continue;
+                }
+                int toTake = Math.min(stack.getCount(), needed - taken);
+                ItemStack removed = inv.removeItem(slot, toTake);
+                if (removed.isEmpty()) {
+                    continue;
+                }
+                int placed = removed.getCount() - addStackToContainer(container, removed);
+                taken += placed;
+                if (placed < removed.getCount()) {
+                    ItemStack leftover = removed.copyWithCount(removed.getCount() - placed);
+                    inv.placeItemBackInInventory(leftover);
+                }
+            }
+            if (taken > 0) {
+                filledTypes++;
+            }
+            if (taken < needed) {
+                missing.put(item, needed - taken);
+            }
+        }
+        return filledTypes;
+    }
+
+    private static int addStackToContainer(Container container, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        Item item = stack.getItem();
+        int count = stack.getCount();
+        int max = item.getDefaultMaxStackSize();
+        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+            ItemStack cur = container.getItem(slot);
+            if (!cur.isEmpty() && cur.is(item) && cur.getCount() < max) {
+                int add = Math.min(max - cur.getCount(), count);
+                cur.grow(add);
+                count -= add;
+                if (count == 0) {
+                    return 0;
+                }
+            }
+        }
+        for (int slot = 0; slot < container.getContainerSize(); slot++) {
+            if (container.getItem(slot).isEmpty()) {
+                int put = Math.min(max, count);
+                container.setItem(slot, stack.copyWithCount(put));
+                count -= put;
+                if (count == 0) {
+                    return 0;
+                }
+            }
+        }
+        container.setChanged();
+        return count;
     }
 }

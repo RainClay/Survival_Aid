@@ -10,6 +10,7 @@ import com.survivalaid.features.DeathCoordinateMessageRule;
 import com.survivalaid.features.DisableVillageCatSpawnRule;
 import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.InstantHopperRule;
+import com.survivalaid.features.ProjectionFillRule;
 import com.survivalaid.features.InstantItemPickupRule;
 import com.survivalaid.features.ItemPickupFilterRule;
 import com.survivalaid.features.LowDurabilityWarningRule;
@@ -81,5 +82,6 @@ public final class SurvivalAidSettings {
         settingsManager.parseSettingsClass(BotMinecartPreserveRule.class);
         settingsManager.parseSettingsClass(FakePlayerItemSearchRule.class);
         settingsManager.parseSettingsClass(InstantHopperRule.class);
+        settingsManager.parseSettingsClass(ProjectionFillRule.class);
     }
 }

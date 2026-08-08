@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
 public class SurvivalAidClient implements ClientModInitializer {
-    private static String lastSentName = null;
+    private static String lastSent = null;
     private int tickCounter = 0;
 
     @Override
@@ -21,10 +21,10 @@ public class SurvivalAidClient implements ClientModInitializer {
                 return;
             }
             tickCounter = 0;
-            String name = ProjectionNameProvider.getCurrentProjectionFileName();
-            String effective = name == null ? "" : name;
-            if (!effective.equals(lastSentName)) {
-                lastSentName = effective;
+            ProjectionClientState st = ProjectionNameProvider.getCurrentProjectionState();
+            String effective = st == null ? "" : (st.name + "\u0001" + st.rangeType + "\u0001" + st.minY + "\u0001" + st.maxY + "\u0001" + st.originY);
+            if (!effective.equals(lastSent)) {
+                lastSent = effective;
                 ClientPlayNetworking.send(new SurvivalAidProjectionPayload(effective));
             }
         });

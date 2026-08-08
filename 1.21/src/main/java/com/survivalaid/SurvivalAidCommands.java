@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import carpet.patches.EntityPlayerMPFake;
 import com.survivalaid.features.FakePlayerItemSearchRule;
 import com.survivalaid.features.ItemPickupFilterRule;
+import com.survivalaid.features.ProjectionFillExcludeRule;
 import com.survivalaid.features.ProjectionFillRule;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -385,20 +386,20 @@ public final class SurvivalAidCommands {
             source.sendError(Text.literal("schematics/ 目录不存在（请放到服务器 schematics/ 目录）。"));
             return 0;
         }
-        String proj = ProjectionSyncStore.get(player.getUuid());
-        if (proj == null || proj.isEmpty()) {
+        ProjectionClientState state = ProjectionSyncStore.get(player.getUuid());
+        if (state == null || state.name == null || state.name.isEmpty()) {
             source.sendError(Text.literal("未检测到当前投影，请在客户端 Litematica 中选中一个投影后重试。"));
             return 0;
         }
         List<Path> matches;
         try {
-            matches = findSchematicFiles(dir, proj);
+            matches = findSchematicFiles(dir, state.name);
         } catch (IOException e) {
             source.sendError(Text.literal("读取 schematics/ 目录失败。"));
             return 0;
         }
         if (matches.isEmpty()) {
-            source.sendError(Text.literal("服务器 schematics/ 下找不到投影文件: " + proj + "（已含子目录搜索）"));
+            source.sendError(Text.literal("服务器 schematics/ 下找不到投影文件: " + state.name + "（已含子目录搜索）"));
             return 0;
         }
         if (matches.size() > 1) {
@@ -412,7 +413,7 @@ public final class SurvivalAidCommands {
         Path file = matches.get(0);
         Map<Item, Integer> required;
         try {
-            required = parseSchematicItems(file);
+            required = parseSchematicItems(file, state, parseExcludeBlocks(ProjectionFillExcludeRule.survivalAidFillExcludeBlocks));
         } catch (Exception e) {
             source.sendError(Text.literal("解析投影失败: " + e.getMessage()));
             return 0;
@@ -493,7 +494,55 @@ public final class SurvivalAidCommands {
         return 0;
     }
 
-    private static Map<Item, Integer> parseSchematicItems(Path file) throws IOException {
+    private static int[] regionAxes(NbtCompound region) {
+        int sx = 0;
+        int sz = 0;
+        int posY = 0;
+        int sizeY = 0;
+        if (region.contains("Size", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound size = region.getCompound("Size");
+            sx = Math.abs(size.getInt("x"));
+            sz = Math.abs(size.getInt("z"));
+            sizeY = size.getInt("y");
+        } else if (region.contains("Size", NbtElement.LIST_TYPE)) {
+            NbtList size = region.getList("Size", NbtElement.INT_TYPE);
+            if (size.size() >= 3) {
+                sx = Math.abs(size.getInt(0));
+                sz = Math.abs(size.getInt(2));
+                sizeY = size.getInt(1);
+            }
+        }
+        if (region.contains("Position", NbtElement.COMPOUND_TYPE)) {
+            NbtCompound pos = region.getCompound("Position");
+            posY = pos.getInt("y");
+        } else if (region.contains("Position", NbtElement.LIST_TYPE)) {
+            NbtList pos = region.getList("Position", NbtElement.INT_TYPE);
+            if (pos.size() >= 3) {
+                posY = pos.getInt(1);
+            }
+        }
+        return new int[]{sx, sz, posY, sizeY};
+    }
+
+    private static Set<String> parseExcludeBlocks(String cfg) {
+        Set<String> result = new HashSet<>();
+        if (cfg == null || cfg.isEmpty()) {
+            return result;
+        }
+        for (String t : cfg.split(",")) {
+            String id = t.trim();
+            if (id.isEmpty()) {
+                continue;
+            }
+            if (!id.contains(":")) {
+                id = "minecraft:" + id;
+            }
+            result.add(id);
+        }
+        return result;
+    }
+
+    private static Map<Item, Integer> parseSchematicItems(Path file, ProjectionClientState state, Set<String> excludeBlocks) throws IOException {
         NbtCompound root = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
         NbtCompound regions = root.getCompound("Regions");
         Map<String, Integer> blockCounts = new LinkedHashMap<>();
@@ -517,6 +566,9 @@ public final class SurvivalAidCommands {
             }
             int bits = Math.max(1, (int) Math.ceil(Math.log(paletteIds.size()) / Math.log(2)));
             long mask = bits >= 32 ? -1L : ((1L << bits) - 1L);
+            int[] axes = regionAxes(region);
+            int slab = axes[0] * axes[1];
+            boolean filter = state.isLayerFiltered();
             int[] counts = new int[paletteIds.size()];
             for (int i = 0; i < volume; i++) {
                 int startBit = i * bits;
@@ -535,11 +587,19 @@ public final class SurvivalAidCommands {
                 }
                 int idx = (int) value;
                 if (idx >= 0 && idx < counts.length) {
+                    if (filter) {
+                        int localY = (int) (i / slab);
+                        int schedY = (axes[3] < 0) ? (axes[2] + axes[3] + 1 + localY) : (axes[2] + localY);
+                        int worldY = state.originY + schedY;
+                        if (worldY < state.minY || worldY > state.maxY) {
+                            continue;
+                        }
+                    }
                     counts[idx]++;
                 }
             }
             for (int i = 0; i < counts.length; i++) {
-                if (counts[i] > 0) {
+                if (counts[i] > 0 && !excludeBlocks.contains(paletteIds.get(i))) {
                     blockCounts.merge(paletteIds.get(i), counts[i], Integer::sum);
                 }
             }

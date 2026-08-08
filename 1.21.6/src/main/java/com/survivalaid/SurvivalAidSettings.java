@@ -21,6 +21,7 @@ import com.survivalaid.features.NoEndermanGriefingRule;
 import com.survivalaid.features.NoItemDespawnRule;
 import com.survivalaid.features.PreventToolBreakRule;
 import com.survivalaid.features.PreventToolBreakThresholdRule;
+import com.survivalaid.features.ProjectionFillExcludeRule;
 import com.survivalaid.features.ProjectionFillRule;
 import com.survivalaid.features.StackingOptimizedEntitiesRule;
 import com.survivalaid.features.TntLikeBlocksRule;
@@ -82,6 +83,7 @@ public final class SurvivalAidSettings {
         settingsManager.parseSettingsClass(BotMinecartPreserveRule.class);
         settingsManager.parseSettingsClass(FakePlayerItemSearchRule.class);
         settingsManager.parseSettingsClass(InstantHopperRule.class);
+        settingsManager.parseSettingsClass(ProjectionFillExcludeRule.class);
         settingsManager.parseSettingsClass(ProjectionFillRule.class);
     }
 }

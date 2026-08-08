@@ -31,7 +31,7 @@ public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
         });
         PayloadTypeRegistry.playC2S().register(SurvivalAidProjectionPayload.TYPE, SurvivalAidProjectionPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SurvivalAidProjectionPayload.TYPE, (payload, context) -> {
-            ProjectionSyncStore.set(context.player().getUuid(), payload.name());
+            ProjectionSyncStore.set(context.player().getUuid(), ProjectionClientState.parse(payload.name()));
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             ProjectionSyncStore.remove(handler.player.getUuid());

@@ -4,20 +4,20 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ProjectionSyncStore {
-    private static final ConcurrentHashMap<UUID, String> PROJECTIONS = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, ProjectionClientState> PROJECTIONS = new ConcurrentHashMap<>();
 
     private ProjectionSyncStore() {
     }
 
-    public static String get(UUID uuid) {
+    public static ProjectionClientState get(UUID uuid) {
         return PROJECTIONS.get(uuid);
     }
 
-    public static void set(UUID uuid, String name) {
-        if (name == null || name.isEmpty()) {
+    public static void set(UUID uuid, ProjectionClientState state) {
+        if (state == null || state.name == null || state.name.isEmpty()) {
             PROJECTIONS.remove(uuid);
         } else {
-            PROJECTIONS.put(uuid, name);
+            PROJECTIONS.put(uuid, state);
         }
     }
 

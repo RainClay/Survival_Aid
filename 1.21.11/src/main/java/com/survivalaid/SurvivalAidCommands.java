@@ -415,26 +415,16 @@ public final class SurvivalAidCommands {
             source.sendError(Text.literal("schematics/ 目录不存在（请放到服务器 schematics/ 目录）。"));
             return 0;
         }
-        List<Path> files = new ArrayList<>();
-        try (var stream = Files.list(dir)) {
-            stream.filter(p -> p.getFileName().toString().toLowerCase().endsWith(".litematic")).forEach(files::add);
-        } catch (IOException e) {
-            source.sendError(Text.literal("读取 schematics/ 目录失败。"));
+        String proj = ProjectionSyncStore.get(player.getUuid());
+        if (proj == null || proj.isEmpty()) {
+            source.sendError(Text.literal("未检测到当前投影，请在客户端 Litematica 中选中一个投影后重试。"));
             return 0;
         }
-        if (files.isEmpty()) {
-            source.sendError(Text.literal("schematics/ 目录下没有 .litematic 投影文件。"));
+        Path file = dir.resolve(proj);
+        if (!Files.isRegularFile(file)) {
+            source.sendError(Text.literal("服务器 schematics/ 下找不到投影文件: " + proj));
             return 0;
         }
-        if (files.size() > 1) {
-            StringBuilder sb = new StringBuilder("schematics/ 下有多个投影，请只保留要填充的那个:");
-            for (Path p : files) {
-                sb.append("\n").append(p.getFileName());
-            }
-            source.sendError(Text.literal(sb.toString()));
-            return 0;
-        }
-        Path file = files.get(0);
         Map<Item, Integer> required;
         try {
             required = parseSchematicItems(file);

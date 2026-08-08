@@ -86,8 +86,8 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidInstantHopper.desc", "开启后漏斗每 tick 都尝试传输物品（0 tick 冷却），物品可瞬间从漏斗移出。");
         translations.put("survival_aid.rule.survivalAidProjectionFill.name", "投影一键填充");
         translations.put("survival_aid.rule.survivalAidProjectionFill.desc", "开启后执行 /survivalaid fill，自动按服务器 schematics/ 目录下唯一一份 .litematic 投影所需的方块物品，从执行玩家背包取出对应数量，分发填充进玩家周围 4 格内的所有容器。默认关闭。");
-        translations.put("survival_aid.rule.survivalAidFillExcludeBlocks.name", "填充排除的非材料方块");
-        translations.put("survival_aid.rule.survivalAidFillExcludeBlocks.desc", "/survivalaid fill 统计投影方块时跳过的方块 id（逗号分隔，可省略 minecraft: 前缀）。用于排除机器铺底/推动的机械块（如蓝冰）这类不算填充材料的方块。默认排除 minecraft:blue_ice。");
+        translations.put("survival_aid.rule.survivalAidFillExcludeBlocks.name", "填充排除的填充物物品");
+        translations.put("survival_aid.rule.survivalAidFillExcludeBlocks.desc", "/survivalaid fill 填充投影容器内物品时跳过的物品 id（逗号分隔，可省略 minecraft: 前缀）。用于排除不想囤进容器的填充物。默认排除 minecraft:blue_ice（通常不在容器物品里，故默认惰性）。");
         addCarpetTranslationAliases(translations);
         return Map.copyOf(translations);
     }

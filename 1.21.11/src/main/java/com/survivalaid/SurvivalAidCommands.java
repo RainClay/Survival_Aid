@@ -47,6 +47,7 @@ import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
@@ -441,32 +442,47 @@ public final class SurvivalAidCommands {
             return 0;
         }
         Path file = matches.get(0);
-        Map<Item, Integer> required;
+        List<ProjectionContainerTarget> targets;
         try {
-            required = parseSchematicItems(file, state, parseExcludeBlocks(ProjectionFillExcludeRule.survivalAidFillExcludeBlocks));
+            targets = parseContainerTargets(file, state, parseExcludeItems(ProjectionFillExcludeRule.survivalAidFillExcludeBlocks));
         } catch (Exception e) {
             source.sendError(Text.literal("解析投影失败: " + e.getMessage()));
             return 0;
         }
-        if (required.isEmpty()) {
-            source.sendError(Text.literal("投影中没有需要填充的方块物品。"));
-            return 0;
-        }
-        List<Inventory> containers = findContainersAround(player, 4);
-        if (containers.isEmpty()) {
-            source.sendError(Text.literal("周围 4 格内没有容器（箱子/桶等）。"));
+        if (targets.isEmpty()) {
+            source.sendError(Text.literal("投影的容器里没有物品可填充。"));
             return 0;
         }
         Map<Item, Integer> missing = new HashMap<>();
-        int filledTypes = fillContainersFromPlayer(containers, player, required, missing);
+        List<String> unmatched = new ArrayList<>();
+        int filledContainers = 0;
+        for (ProjectionContainerTarget t : targets) {
+            Inventory real = findContainerAt(player.getEntityWorld(), t.worldPos);
+            if (real == null) {
+                unmatched.add("(" + t.worldPos.getX() + "," + t.worldPos.getY() + "," + t.worldPos.getZ() + ")");
+                continue;
+            }
+            Map<Item, Integer> need = shortfall(real, t.required);
+            if (need.isEmpty()) {
+                continue;
+            }
+            if (fillContainerFromPlayer(real, player, need, missing) > 0) {
+                filledContainers++;
+            }
+        }
         final String fileName = file.getFileName().toString();
+        final int fCount = filledContainers;
+        final List<String> fUnmatched = unmatched;
         final Map<Item, Integer> finalMissing = missing;
         source.sendFeedback(() -> {
-            String msg = "已按投影 " + fileName + " 填充 " + filledTypes + " 种物品到周围容器";
-            if (finalMissing.isEmpty()) {
-                return Text.literal(msg + "。");
+            StringBuilder sb = new StringBuilder("已按投影 " + fileName + " 填充 " + fCount + " 个容器");
+            if (!fUnmatched.isEmpty()) {
+                sb.append("；未匹配到真实容器的投影坐标: ").append(String.join(", ", fUnmatched));
             }
-            StringBuilder sb = new StringBuilder(msg + "，缺少: ");
+            if (finalMissing.isEmpty()) {
+                return Text.literal(sb.toString() + "。");
+            }
+            sb.append("；缺少: ");
             boolean first = true;
             for (Map.Entry<Item, Integer> e : finalMissing.entrySet()) {
                 if (!first) {
@@ -475,9 +491,9 @@ public final class SurvivalAidCommands {
                 first = false;
                 sb.append(Registries.ITEM.getId(e.getKey())).append(' ').append(e.getValue());
             }
-            return Text.literal(sb.toString());
+            return Text.literal(sb.toString() + "。");
         }, true);
-        return filledTypes;
+        return filledContainers;
     }
 
     private static List<Path> findSchematicFiles(Path root, String name) throws IOException {
@@ -489,80 +505,77 @@ public final class SurvivalAidCommands {
         return result;
     }
 
-    private static List<Inventory> findContainersAround(ServerPlayerEntity player, int radius) {
-        List<Inventory> result = new ArrayList<>();
-        BlockPos center = player.getBlockPos();
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                for (int dz = -radius; dz <= radius; dz++) {
-                    BlockPos p = center.add(dx, dy, dz);
-                    BlockEntity be = player.getEntityWorld().getBlockEntity(p);
-                    if (be instanceof Inventory inv) {
-                        result.add(inv);
-                    }
-                }
+    private static Inventory findContainerAt(World world, BlockPos pos) {
+        int[] dx = {0, 1, -1, 0, 0, 0, 0};
+        int[] dy = {0, 0, 0, 1, -1, 0, 0};
+        int[] dz = {0, 0, 0, 0, 0, 1, -1};
+        for (int i = 0; i < dx.length; i++) {
+            BlockEntity be = world.getBlockEntity(pos.add(dx[i], dy[i], dz[i]));
+            if (be instanceof Inventory inv) {
+                return inv;
             }
         }
-        return result;
+        return null;
     }
 
-    private static long regionVolume(NbtCompound region) {
-        Optional<NbtCompound> sizeComp = region.getCompound("Size");
-        if (sizeComp.isPresent()) {
-            NbtCompound size = sizeComp.get();
-            long sx = size.getInt("x").orElse(0);
-            long sy = size.getInt("y").orElse(0);
-            long sz = size.getInt("z").orElse(0);
-            return Math.abs(sx * sy * sz);
-        }
-        Optional<NbtList> sizeList = region.getList("Size");
-        if (sizeList.isPresent()) {
-            NbtList size = sizeList.get();
-            if (size.size() >= 3) {
-                return Math.abs((long) size.getInt(0, 0) * size.getInt(1, 0) * size.getInt(2, 0));
+    private static Map<Item, Integer> containerContents(Inventory container) {
+        Map<Item, Integer> have = new HashMap<>();
+        for (int slot = 0; slot < container.size(); slot++) {
+            ItemStack stack = container.getStack(slot);
+            if (!stack.isEmpty()) {
+                have.merge(stack.getItem(), stack.getCount(), Integer::sum);
             }
         }
-        return 0;
+        return have;
     }
 
-    private static int[] regionAxes(NbtCompound region) {
-        int sx = 0;
-        int sz = 0;
-        int posY = 0;
-        int sizeY = 0;
-        Optional<NbtCompound> sizeComp = region.getCompound("Size");
-        if (sizeComp.isPresent()) {
-            NbtCompound size = sizeComp.get();
-            sx = Math.abs(size.getInt("x").orElse(0));
-            sz = Math.abs(size.getInt("z").orElse(0));
-            sizeY = size.getInt("y").orElse(0);
-        } else {
-            Optional<NbtList> sizeList = region.getList("Size");
-            if (sizeList.isPresent()) {
-                NbtList size = sizeList.get();
-                if (size.size() >= 3) {
-                    sx = Math.abs(size.getInt(0, 0));
-                    sz = Math.abs(size.getInt(2, 0));
-                    sizeY = size.getInt(1, 0);
-                }
+    private static Map<Item, Integer> shortfall(Inventory container, Map<Item, Integer> required) {
+        Map<Item, Integer> have = containerContents(container);
+        Map<Item, Integer> need = new HashMap<>();
+        for (Map.Entry<Item, Integer> e : required.entrySet()) {
+            int diff = e.getValue() - have.getOrDefault(e.getKey(), 0);
+            if (diff > 0) {
+                need.put(e.getKey(), diff);
             }
         }
-        Optional<NbtCompound> posComp = region.getCompound("Position");
-        if (posComp.isPresent()) {
-            posY = posComp.get().getInt("y").orElse(0);
-        } else {
-            Optional<NbtList> posList = region.getList("Position");
-            if (posList.isPresent()) {
-                NbtList pos = posList.get();
-                if (pos.size() >= 3) {
-                    posY = pos.getInt(1, 0);
-                }
-            }
-        }
-        return new int[]{sx, sz, posY, sizeY};
+        return need;
     }
 
-    private static Set<String> parseExcludeBlocks(String cfg) {
+    private static int fillContainerFromPlayer(Inventory container, ServerPlayerEntity player, Map<Item, Integer> need, Map<Item, Integer> missing) {
+        net.minecraft.entity.player.PlayerInventory inv = player.getInventory();
+        int filledTypes = 0;
+        for (Map.Entry<Item, Integer> e : need.entrySet()) {
+            Item item = e.getKey();
+            int needed = e.getValue();
+            int taken = 0;
+            for (int slot = 0; slot < inv.size() && taken < needed; slot++) {
+                ItemStack stack = inv.getStack(slot);
+                if (stack.isEmpty() || !stack.isOf(item)) {
+                    continue;
+                }
+                int toTake = Math.min(stack.getCount(), needed - taken);
+                ItemStack removed = inv.removeStack(slot, toTake);
+                if (removed.isEmpty()) {
+                    continue;
+                }
+                int placed = placeIntoContainers(List.of(container), removed);
+                taken += placed;
+                if (placed < removed.getCount()) {
+                    ItemStack leftover = removed.copyWithCount(removed.getCount() - placed);
+                    inv.offerOrDrop(leftover);
+                }
+            }
+            if (taken > 0) {
+                filledTypes++;
+            }
+            if (taken < needed) {
+                missing.merge(item, needed - taken, Integer::sum);
+            }
+        }
+        return filledTypes;
+    }
+
+    private static Set<String> parseExcludeItems(String cfg) {
         Set<String> result = new HashSet<>();
         if (cfg == null || cfg.isEmpty()) {
             return result;
@@ -580,147 +593,88 @@ public final class SurvivalAidCommands {
         return result;
     }
 
-    private static Map<Item, Integer> parseSchematicItems(Path file, ProjectionClientState state, Set<String> excludeBlocks) throws IOException {
+    private static Item itemFromId(String id) {
+        Identifier ident = id.indexOf(':') >= 0 ? Identifier.tryParse(id) : Identifier.tryParse("minecraft:" + id);
+        if (ident == null) {
+            return null;
+        }
+        return Registries.ITEM.get(ident);
+    }
+    private static List<ProjectionContainerTarget> parseContainerTargets(Path file, ProjectionClientState state, Set<String> excludeItems) throws IOException {
         NbtCompound root = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
         Optional<NbtCompound> regionsOpt = root.getCompound("Regions");
-        Map<String, Integer> blockCounts = new LinkedHashMap<>();
         if (regionsOpt.isEmpty()) {
-            return new LinkedHashMap<>();
+            return new ArrayList<>();
         }
         NbtCompound regions = regionsOpt.get();
+        List<ProjectionContainerTarget> result = new ArrayList<>();
         for (String regionName : regions.getKeys()) {
             Optional<NbtCompound> regionOpt = regions.getCompound(regionName);
             if (regionOpt.isEmpty()) {
                 continue;
             }
             NbtCompound region = regionOpt.get();
-            long volume = regionVolume(region);
-            if (volume <= 0) {
+            Optional<NbtList> tilesOpt = region.getList("TileEntities");
+            if (tilesOpt.isEmpty()) {
                 continue;
             }
-            Optional<NbtList> paletteOpt = region.getList("BlockStatePalette");
-            if (paletteOpt.isEmpty()) {
-                continue;
-            }
-            NbtList palette = paletteOpt.get();
-            if (palette.isEmpty()) {
-                continue;
-            }
-            List<String> paletteIds = new ArrayList<>();
-            for (int i = 0; i < palette.size(); i++) {
-                Optional<NbtCompound> entryOpt = palette.getCompound(i);
-                if (entryOpt.isEmpty()) {
+            NbtList tiles = tilesOpt.get();
+            for (int i = 0; i < tiles.size(); i++) {
+                Optional<NbtCompound> teOpt = tiles.getCompound(i);
+                if (teOpt.isEmpty()) {
                     continue;
                 }
-                Optional<String> nameOpt = entryOpt.get().getString("Name");
-                nameOpt.ifPresent(paletteIds::add);
-            }
-            if (paletteIds.isEmpty()) {
-                continue;
-            }
-            Optional<long[]> statesOpt = region.getLongArray("BlockStates");
-            if (statesOpt.isEmpty()) {
-                continue;
-            }
-            long[] blockStates = statesOpt.get();
-            if (blockStates.length == 0) {
-                continue;
-            }
-            int bits = Math.max(1, (int) Math.ceil(Math.log(paletteIds.size()) / Math.log(2)));
-            long mask = bits >= 32 ? -1L : ((1L << bits) - 1L);
-            int[] axes = regionAxes(region);
-            int slab = axes[0] * axes[1];
-            boolean filter = state.isLayerFiltered();
-            int[] counts = new int[paletteIds.size()];
-            for (int i = 0; i < volume; i++) {
-                int startBit = i * bits;
-                int arr = startBit >> 6;
-                int off = startBit & 63;
-                if (arr >= blockStates.length) {
-                    break;
+                NbtCompound te = teOpt.get();
+                int x = te.getInt("x").orElse(0);
+                int y = te.getInt("y").orElse(0);
+                int z = te.getInt("z").orElse(0);
+                if (state.isLayerFiltered()) {
+                    int worldY = state.originY + y;
+                    if (worldY < state.minY || worldY > state.maxY) {
+                        continue;
+                    }
                 }
-                long value;
-                if (off + bits <= 64) {
-                    value = (blockStates[arr] >>> off) & mask;
-                } else if (arr + 1 < blockStates.length) {
-                    value = ((blockStates[arr] >>> off) | (blockStates[arr + 1] << (64 - off))) & mask;
-                } else {
-                    value = (blockStates[arr] >>> off) & mask;
-                }
-                int idx = (int) value;
-                if (idx >= 0 && idx < counts.length) {
-                    if (filter) {
-                        int localY = (int) (i / slab);
-                        int schedY = (axes[3] < 0) ? (axes[2] + axes[3] + 1 + localY) : (axes[2] + localY);
-                        int worldY = state.originY + schedY;
-                        if (worldY < state.minY || worldY > state.maxY) {
+                BlockPos worldPos = new BlockPos(state.originX + x, state.originY + y, state.originZ + z);
+                Map<Item, Integer> required = new HashMap<>();
+                Optional<NbtList> itemsOpt = te.getList("Items");
+                if (itemsOpt.isPresent()) {
+                    NbtList items = itemsOpt.get();
+                    for (int j = 0; j < items.size(); j++) {
+                        Optional<NbtCompound> itOpt = items.getCompound(j);
+                        if (itOpt.isEmpty()) {
                             continue;
                         }
+                        NbtCompound it = itOpt.get();
+                        String id = it.getString("id").orElse("");
+                        if (id.isEmpty() || excludeItems.contains(id)) {
+                            continue;
+                        }
+                        int count = it.getByte("Count").orElse((byte) 0);
+                        Item item = itemFromId(id);
+                        if (item == null || item == Items.AIR) {
+                            continue;
+                        }
+                        required.merge(item, count, Integer::sum);
                     }
-                    counts[idx]++;
+                }
+                if (!required.isEmpty()) {
+                    result.add(new ProjectionContainerTarget(worldPos, required));
                 }
             }
-            for (int i = 0; i < counts.length; i++) {
-                if (counts[i] > 0 && !excludeBlocks.contains(paletteIds.get(i))) {
-                    blockCounts.merge(paletteIds.get(i), counts[i], Integer::sum);
-                }
-            }
-        }
-        Map<Item, Integer> result = new LinkedHashMap<>();
-        for (Map.Entry<String, Integer> e : blockCounts.entrySet()) {
-            Identifier id = Identifier.tryParse(e.getKey());
-            if (id == null && e.getKey().indexOf(':') < 0) {
-                id = Identifier.tryParse("minecraft:" + e.getKey());
-            }
-            if (id == null) {
-                continue;
-            }
-            Block block = Registries.BLOCK.get(id);
-            if (block == null) {
-                continue;
-            }
-            Item item = block.asItem();
-            if (item == null || item == Items.AIR) {
-                continue;
-            }
-            result.merge(item, e.getValue(), Integer::sum);
         }
         return result;
     }
 
-    private static int fillContainersFromPlayer(List<Inventory> containers, ServerPlayerEntity player, Map<Item, Integer> required, Map<Item, Integer> missing) {
-        net.minecraft.entity.player.PlayerInventory inv = player.getInventory();
-        int filledTypes = 0;
-        for (Map.Entry<Item, Integer> e : required.entrySet()) {
-            Item item = e.getKey();
-            int needed = e.getValue();
-            int taken = 0;
-            for (int slot = 0; slot < inv.size() && taken < needed; slot++) {
-                ItemStack stack = inv.getStack(slot);
-                if (stack.isEmpty() || !stack.isOf(item)) {
-                    continue;
-                }
-                int toTake = Math.min(stack.getCount(), needed - taken);
-                ItemStack removed = inv.removeStack(slot, toTake);
-                if (removed.isEmpty()) {
-                    continue;
-                }
-                int placed = placeIntoContainers(containers, removed);
-                taken += placed;
-                if (placed < removed.getCount()) {
-                    ItemStack leftover = removed.copyWithCount(removed.getCount() - placed);
-                    inv.offerOrDrop(leftover);
-                }
-            }
-            if (taken > 0) {
-                filledTypes++;
-            }
-            if (taken < needed) {
-                missing.put(item, needed - taken);
-            }
+    private static final class ProjectionContainerTarget {
+        final BlockPos worldPos;
+        final Map<Item, Integer> required;
+
+        ProjectionContainerTarget(BlockPos worldPos, Map<Item, Integer> required) {
+            this.worldPos = worldPos;
+            this.required = required;
         }
-        return filledTypes;
     }
+
 
     private static int placeIntoContainers(List<Inventory> containers, ItemStack stack) {
         if (stack.isEmpty()) {

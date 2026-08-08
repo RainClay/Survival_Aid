@@ -3,6 +3,7 @@ package com.survivalaid;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import net.minecraft.util.math.BlockPos;
 
 public final class ProjectionNameProvider {
     private ProjectionNameProvider() {
@@ -65,22 +66,12 @@ public final class ProjectionNameProvider {
 
     private static int[] readOrigin(Object placement) {
         int[] def = {0, 0, 0};
-        String[] candidates = {"getOrigin", "getPos", "getBlockPos", "getPosition"};
-        for (String m : candidates) {
-            try {
-                Object origin = placement.getClass().getMethod(m).invoke(placement);
-                if (origin == null) {
-                    continue;
-                }
-                Class<?> c = origin.getClass();
-                int x = ((Number) c.getMethod("getX").invoke(origin)).intValue();
-                int y = ((Number) c.getMethod("getY").invoke(origin)).intValue();
-                int z = ((Number) c.getMethod("getZ").invoke(origin)).intValue();
-                if (x != 0 || y != 0 || z != 0) {
-                    return new int[]{x, y, z};
-                }
-            } catch (Exception ignore) {
+        try {
+            Object origin = placement.getClass().getMethod("getOrigin").invoke(placement);
+            if (origin instanceof BlockPos bp) {
+                return new int[]{bp.getX(), bp.getY(), bp.getZ()};
             }
+        } catch (Exception ignore) {
         }
         return def;
     }

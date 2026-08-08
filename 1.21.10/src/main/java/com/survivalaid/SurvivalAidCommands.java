@@ -507,6 +507,25 @@ public final class SurvivalAidCommands {
         return result;
     }
 
+    private static long regionVolume(NbtCompound region) {
+        Optional<NbtCompound> sizeComp = region.getCompound("Size");
+        if (sizeComp.isPresent()) {
+            NbtCompound size = sizeComp.get();
+            long sx = size.getInt("x").orElse(0);
+            long sy = size.getInt("y").orElse(0);
+            long sz = size.getInt("z").orElse(0);
+            return Math.abs(sx * sy * sz);
+        }
+        Optional<NbtList> sizeList = region.getList("Size");
+        if (sizeList.isPresent()) {
+            NbtList size = sizeList.get();
+            if (size.size() >= 3) {
+                return Math.abs((long) size.getInt(0, 0) * size.getInt(1, 0) * size.getInt(2, 0));
+            }
+        }
+        return 0;
+    }
+
     private static Map<Item, Integer> parseSchematicItems(Path file) throws IOException {
         NbtCompound root = NbtIo.readCompressed(file, NbtSizeTracker.of(1000000000L));
         Optional<NbtCompound> regionsOpt = root.getCompound("Regions");
@@ -521,15 +540,10 @@ public final class SurvivalAidCommands {
                 continue;
             }
             NbtCompound region = regionOpt.get();
-            Optional<NbtList> sizeOpt = region.getList("Size");
-            if (sizeOpt.isEmpty()) {
+            long volume = regionVolume(region);
+            if (volume <= 0) {
                 continue;
             }
-            NbtList size = sizeOpt.get();
-            if (size.size() < 3) {
-                continue;
-            }
-            long volume = (long) size.getInt(0, 0) * size.getInt(1, 0) * size.getInt(2, 0);
             Optional<NbtList> paletteOpt = region.getList("BlockStatePalette");
             if (paletteOpt.isEmpty()) {
                 continue;

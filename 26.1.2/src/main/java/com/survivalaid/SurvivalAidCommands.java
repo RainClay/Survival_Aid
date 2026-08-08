@@ -520,6 +520,9 @@ public final class SurvivalAidCommands {
                 continue;
             }
             int already = cur.is(ps.item) ? cur.getCount() : 0;
+            if (already == 0 && !cur.isEmpty()) {
+                inv.placeItemBackInInventory(cur);
+            }
             int need = ps.count - already;
             int taken = takeFromPlayer(player, ps.item, need);
             ItemStack set = new ItemStack(ps.item, already + taken);

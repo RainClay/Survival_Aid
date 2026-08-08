@@ -421,11 +421,26 @@ public final class SurvivalAidCommands {
             source.sendFailure(Component.literal("未检测到当前投影，请在客户端 Litematica 中选中一个投影后重试。"));
             return 0;
         }
-        Path file = dir.resolve(proj);
-        if (!Files.isRegularFile(file)) {
-            source.sendFailure(Component.literal("服务器 schematics/ 下找不到投影文件: " + proj));
+        List<Path> matches;
+        try {
+            matches = findSchematicFiles(dir, proj);
+        } catch (IOException e) {
+            source.sendFailure(Component.literal("读取 schematics/ 目录失败。"));
             return 0;
         }
+        if (matches.isEmpty()) {
+            source.sendFailure(Component.literal("服务器 schematics/ 下找不到投影文件: " + proj + "（已含子目录搜索）"));
+            return 0;
+        }
+        if (matches.size() > 1) {
+            StringBuilder sb = new StringBuilder("schematics/ 下有多个同名投影文件，请只保留要填充的那个:");
+            for (Path p : matches) {
+                sb.append("\n").append(dir.relativize(p));
+            }
+            source.sendFailure(Component.literal(sb.toString()));
+            return 0;
+        }
+        Path file = matches.get(0);
         Map<Item, Integer> required;
         try {
             required = parseSchematicItems(file);
@@ -463,6 +478,15 @@ public final class SurvivalAidCommands {
             return Component.literal(sb.toString());
         }, true);
         return filledTypes;
+    }
+
+    private static List<Path> findSchematicFiles(Path root, String name) throws IOException {
+        List<Path> result = new ArrayList<>();
+        String target = name.endsWith(".litematic") ? name : name + ".litematic";
+        try (var stream = Files.walk(root)) {
+            stream.filter(p -> Files.isRegularFile(p)).filter(p -> p.getFileName().toString().equalsIgnoreCase(target)).forEach(result::add);
+        }
+        return result;
     }
 
     private static List<Container> findContainersAround(ServerPlayer player, int radius) {

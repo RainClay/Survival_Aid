@@ -85,7 +85,7 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidInstantHopper.name", "漏斗即时传输");
         translations.put("survival_aid.rule.survivalAidInstantHopper.desc", "开启后漏斗每 tick 都尝试传输物品（0 tick 冷却），物品可瞬间从漏斗移出。");
         translations.put("survival_aid.rule.survivalAidProjectionFill.name", "投影一键填充");
-        translations.put("survival_aid.rule.survivalAidProjectionFill.desc", "开启后可使用 /survivalaid fill <投影文件名>，按服务器 schematics 目录下的 .litematic 投影所需方块物品，从执行玩家背包取出对应数量填充进玩家所看的容器。默认开启。");
+        translations.put("survival_aid.rule.survivalAidProjectionFill.desc", "开启后执行 /survivalaid fill，自动按服务器 schematics/ 目录下唯一一份 .litematic 投影所需的方块物品，从执行玩家背包取出对应数量，分发填充进玩家周围 4 格内的所有容器。默认关闭。");
         addCarpetTranslationAliases(translations);
         return Map.copyOf(translations);
     }

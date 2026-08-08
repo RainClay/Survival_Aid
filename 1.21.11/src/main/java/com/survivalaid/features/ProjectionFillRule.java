@@ -5,7 +5,7 @@ import carpet.api.settings.Rule;
 public final class ProjectionFillRule {
 
     @Rule(categories = {"survival", "survival_aid"})
-    public static boolean survivalAidProjectionFill = true;
+    public static boolean survivalAidProjectionFill = false;
 
     private ProjectionFillRule() {
     }

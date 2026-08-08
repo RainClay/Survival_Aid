@@ -71,9 +71,9 @@ public final class SurvivalAidCommands {
         .then(CommandManager.literal("searchitem").then(CommandManager.argument("item", StringArgumentType.word()).executes(context6 -> {
             return searchItem((ServerCommandSource) context6.getSource(), StringArgumentType.getString(context6, "item"));
         })))
-        .then(CommandManager.literal("fill").then(CommandManager.argument("schematic", StringArgumentType.word()).executes(context7 -> {
-            return fill((ServerCommandSource) context7.getSource(), StringArgumentType.getString(context7, "schematic"));
-        }))));
+        .then(CommandManager.literal("fill").executes(context7 -> {
+            return fill((ServerCommandSource) context7.getSource());
+        })));
     }
 
     /* JADX INFO: Access modifiers changed from: private */
@@ -400,7 +400,7 @@ public final class SurvivalAidCommands {
         return intVal.orElse(1);
     }
 
-    private static int fill(ServerCommandSource source, String schematicName) {
+    private static int fill(ServerCommandSource source) {
         if (!ProjectionFillRule.survivalAidProjectionFill) {
             source.sendError(Text.literal("投影填充规则未开启（/carpet survivalAidProjectionFill true）。"));
             return 0;
@@ -410,28 +410,31 @@ public final class SurvivalAidCommands {
             source.sendError(Text.literal("须由玩家执行此命令。"));
             return 0;
         }
-        HitResult hit = player.raycast(5.0, 0.0F, false);
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
-            source.sendError(Text.literal("请看着一个箱子/容器再执行。"));
-            return 0;
-        }
-        BlockPos pos = ((BlockHitResult) hit).getBlockPos();
-        BlockEntity blockEntity = player.getEntityWorld().getBlockEntity(pos);
-        if (!(blockEntity instanceof Inventory container)) {
-            source.sendError(Text.literal("目标方块不是容器（箱子/桶等）。"));
-            return 0;
-        }
-        String safeName = sanitizeSchematicName(schematicName);
-        if (safeName == null) {
-            source.sendError(Text.literal("无效的投影文件名。"));
-            return 0;
-        }
         Path dir = source.getServer().getRunDirectory().resolve("schematics");
-        Path file = dir.resolve(safeName);
-        if (!Files.isRegularFile(file)) {
-            source.sendError(Text.literal("找不到投影文件: " + safeName + "（请放到服务器 schematics/ 目录）。"));
+        if (!Files.isDirectory(dir)) {
+            source.sendError(Text.literal("schematics/ 目录不存在（请放到服务器 schematics/ 目录）。"));
             return 0;
         }
+        List<Path> files = new ArrayList<>();
+        try (var stream = Files.list(dir)) {
+            stream.filter(p -> p.getFileName().toString().toLowerCase().endsWith(".litematic")).forEach(files::add);
+        } catch (IOException e) {
+            source.sendError(Text.literal("读取 schematics/ 目录失败。"));
+            return 0;
+        }
+        if (files.isEmpty()) {
+            source.sendError(Text.literal("schematics/ 目录下没有 .litematic 投影文件。"));
+            return 0;
+        }
+        if (files.size() > 1) {
+            StringBuilder sb = new StringBuilder("schematics/ 下有多个投影，请只保留要填充的那个:");
+            for (Path p : files) {
+                sb.append("\n").append(p.getFileName());
+            }
+            source.sendError(Text.literal(sb.toString()));
+            return 0;
+        }
+        Path file = files.get(0);
         Map<Item, Integer> required;
         try {
             required = parseSchematicItems(file);
@@ -443,11 +446,17 @@ public final class SurvivalAidCommands {
             source.sendError(Text.literal("投影中没有需要填充的方块物品。"));
             return 0;
         }
+        List<Inventory> containers = findContainersAround(player, 4);
+        if (containers.isEmpty()) {
+            source.sendError(Text.literal("周围 4 格内没有容器（箱子/桶等）。"));
+            return 0;
+        }
         Map<Item, Integer> missing = new HashMap<>();
-        int filledTypes = fillContainerFromPlayer(container, player, required, missing);
+        int filledTypes = fillContainersFromPlayer(containers, player, required, missing);
+        final String fileName = file.getFileName().toString();
         final Map<Item, Integer> finalMissing = missing;
         source.sendFeedback(() -> {
-            String msg = "已填充 " + filledTypes + " 种物品到容器";
+            String msg = "已按投影 " + fileName + " 填充 " + filledTypes + " 种物品到周围容器";
             if (finalMissing.isEmpty()) {
                 return Text.literal(msg + "。");
             }
@@ -465,15 +474,21 @@ public final class SurvivalAidCommands {
         return filledTypes;
     }
 
-    private static String sanitizeSchematicName(String name) {
-        String n = name.trim();
-        if (!n.matches("[A-Za-z0-9._-]+") || n.contains("..")) {
-            return null;
+    private static List<Inventory> findContainersAround(ServerPlayerEntity player, int radius) {
+        List<Inventory> result = new ArrayList<>();
+        BlockPos center = player.getBlockPos();
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    BlockPos p = center.add(dx, dy, dz);
+                    BlockEntity be = player.getEntityWorld().getBlockEntity(p);
+                    if (be instanceof Inventory inv) {
+                        result.add(inv);
+                    }
+                }
+            }
         }
-        if (!n.endsWith(".litematic")) {
-            n = n + ".litematic";
-        }
-        return n;
+        return result;
     }
 
     private static Map<Item, Integer> parseSchematicItems(Path file) throws IOException {
@@ -578,7 +593,7 @@ public final class SurvivalAidCommands {
         return result;
     }
 
-    private static int fillContainerFromPlayer(Inventory container, ServerPlayerEntity player, Map<Item, Integer> required, Map<Item, Integer> missing) {
+    private static int fillContainersFromPlayer(List<Inventory> containers, ServerPlayerEntity player, Map<Item, Integer> required, Map<Item, Integer> missing) {
         net.minecraft.entity.player.PlayerInventory inv = player.getInventory();
         int filledTypes = 0;
         for (Map.Entry<Item, Integer> e : required.entrySet()) {
@@ -595,7 +610,7 @@ public final class SurvivalAidCommands {
                 if (removed.isEmpty()) {
                     continue;
                 }
-                int placed = removed.getCount() - addStackToContainer(container, removed);
+                int placed = placeIntoContainers(containers, removed);
                 taken += placed;
                 if (placed < removed.getCount()) {
                     ItemStack leftover = removed.copyWithCount(removed.getCount() - placed);
@@ -612,35 +627,38 @@ public final class SurvivalAidCommands {
         return filledTypes;
     }
 
-    private static int addStackToContainer(Inventory container, ItemStack stack) {
+    private static int placeIntoContainers(List<Inventory> containers, ItemStack stack) {
         if (stack.isEmpty()) {
             return 0;
         }
         Item item = stack.getItem();
         int count = stack.getCount();
         int max = stack.getMaxCount();
-        for (int slot = 0; slot < container.size(); slot++) {
-            ItemStack cur = container.getStack(slot);
-            if (!cur.isEmpty() && cur.isOf(item) && cur.getCount() < max) {
-                int add = Math.min(max - cur.getCount(), count);
-                cur.increment(add);
-                count -= add;
-                if (count == 0) {
-                    return 0;
+        int placed = 0;
+        for (Inventory container : containers) {
+            for (int slot = 0; slot < container.size() && count > 0; slot++) {
+                ItemStack cur = container.getStack(slot);
+                if (!cur.isEmpty() && cur.isOf(item) && cur.getCount() < max) {
+                    int add = Math.min(max - cur.getCount(), count);
+                    cur.increment(add);
+                    count -= add;
+                    placed += add;
                 }
             }
         }
-        for (int slot = 0; slot < container.size(); slot++) {
-            if (container.getStack(slot).isEmpty()) {
-                int put = Math.min(max, count);
-                container.setStack(slot, stack.copyWithCount(put));
-                count -= put;
-                if (count == 0) {
-                    return 0;
+        for (Inventory container : containers) {
+            for (int slot = 0; slot < container.size() && count > 0; slot++) {
+                if (container.getStack(slot).isEmpty()) {
+                    int put = Math.min(max, count);
+                    container.setStack(slot, stack.copyWithCount(put));
+                    count -= put;
+                    placed += put;
                 }
             }
         }
-        container.markDirty();
-        return count;
+        for (Inventory container : containers) {
+            container.markDirty();
+        }
+        return placed;
     }
 }

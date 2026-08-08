@@ -23,7 +23,10 @@ public final class ProjectionNameProvider {
             if (name == null || name.isEmpty()) {
                 return null;
             }
-            int originY = readOriginY(placement);
+            int[] origin = readOrigin(placement);
+            int originX = origin[0];
+            int originY = origin[1];
+            int originZ = origin[2];
             String rangeType = "ALL";
             int minY = -1;
             int maxY = -1;
@@ -42,7 +45,7 @@ public final class ProjectionNameProvider {
                 minY = -1;
                 maxY = -1;
             }
-            return new ProjectionClientState(name, rangeType, minY, maxY, originY);
+            return new ProjectionClientState(name, rangeType, minY, maxY, originX, originY, originZ);
         } catch (Exception e) {
             return null;
         }
@@ -60,15 +63,20 @@ public final class ProjectionNameProvider {
         return displayName == null ? null : displayName.toString();
     }
 
-    private static int readOriginY(Object placement) {
+    private static int[] readOrigin(Object placement) {
+        int[] def = {0, 0, 0};
         try {
             Object origin = placement.getClass().getMethod("getOrigin").invoke(placement);
             if (origin == null) {
-                return 0;
+                return def;
             }
-            return ((Integer) origin.getClass().getMethod("getY").invoke(origin)).intValue();
+            Class<?> c = origin.getClass();
+            int x = ((Integer) c.getMethod("getX").invoke(origin)).intValue();
+            int y = ((Integer) c.getMethod("getY").invoke(origin)).intValue();
+            int z = ((Integer) c.getMethod("getZ").invoke(origin)).intValue();
+            return new int[]{x, y, z};
         } catch (Exception e) {
-            return 0;
+            return def;
         }
     }
 

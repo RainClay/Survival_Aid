@@ -22,7 +22,7 @@ public class SurvivalAidClient implements ClientModInitializer {
             }
             tickCounter = 0;
             ProjectionClientState st = ProjectionNameProvider.getCurrentProjectionState();
-            String effective = st == null ? "" : (st.name + "\u0001" + st.rangeType + "\u0001" + st.minY + "\u0001" + st.maxY + "\u0001" + st.originY);
+            String effective = st == null ? "" : (st.name + "\u0001" + st.rangeType + "\u0001" + st.minY + "\u0001" + st.maxY + "\u0001" + st.originX + "\u0001" + st.originY + "\u0001" + st.originZ);
             if (!effective.equals(lastSent)) {
                 lastSent = effective;
                 ClientPlayNetworking.send(new SurvivalAidProjectionPayload(effective));

@@ -12,10 +12,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,9 +36,9 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -166,51 +162,12 @@ public final class SurvivalAidCommands {
         return entries().size();
     }
 
-    private static Identifier resolveItemByName(MinecraftServer server, String name) {
-        return chineseItemNameMap(server).get(name);
-    }
-
-    private static Map<String, Identifier> chineseItemNameCache = new HashMap<>();
-    private static boolean chineseItemNameLoaded = false;
-
-    private static Map<String, Identifier> chineseItemNameMap(MinecraftServer server) {
-        if (!chineseItemNameLoaded) {
-            chineseItemNameCache = buildChineseItemNameMap(server);
-            chineseItemNameLoaded = true;
+    private static Identifier tryParseItemId(String value) {
+        Identifier id = Identifier.tryParse(value);
+        if (id == null) {
+            id = Identifier.tryParse("minecraft:" + value);
         }
-        return chineseItemNameCache;
-    }
-
-    private static Map<String, Identifier> buildChineseItemNameMap(MinecraftServer server) {
-        Map<String, Identifier> result = new HashMap<>();
-        try {
-            Optional<Resource> res = server.getResourceManager().getResource(Identifier.fromNamespaceAndPath("minecraft", "lang/zh_cn.json"));
-            if (res.isPresent()) {
-                JsonObject root;
-                try (InputStream is = res.get().open();
-                     Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-                    root = JsonParser.parseReader(r).getAsJsonObject();
-                }
-                for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
-                    String key = entry.getKey();
-                    if (!key.startsWith("item.") && !key.startsWith("block.")) {
-                        continue;
-                    }
-                    int first = key.indexOf('.');
-                    int second = key.indexOf('.', first + 1);
-                    if (second < 0) {
-                        continue;
-                    }
-                    Identifier id = Identifier.tryParse(key.substring(first + 1, second) + ":" + key.substring(second + 1));
-                    if (id != null && BuiltInRegistries.ITEM.containsKey(id)) {
-                        result.putIfAbsent(entry.getValue().getAsString(), id);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // 语言文件解析失败则退回仅按物品 ID 搜索
-        }
-        return result;
+        return id;
     }
 
     private static int searchItem(CommandSourceStack source, String itemName) {
@@ -219,15 +176,45 @@ public final class SurvivalAidCommands {
             return 0;
         }
         String normalizedItem = normalizeToken(itemName);
-        Identifier itemId = Identifier.tryParse(normalizedItem);
+        Identifier itemId = tryParseItemId(normalizedItem);
         if (itemId == null) {
-            itemId = Identifier.tryParse("minecraft:" + normalizedItem);
-        }
-        if (itemId == null) {
-            itemId = resolveItemByName(source.getServer(), normalizedItem);
-        }
-        if (itemId == null) {
+            ServerPlayer player = source.getPlayer();
+            if (player != null && ServerPlayNetworking.canSend(player, SearchItemRequestPayload.TYPE)) {
+                ServerPlayNetworking.send(player, new SearchItemRequestPayload(normalizedItem));
+                source.sendSuccess(() -> {
+                    return Component.literal("正在客户端解析中文物品名: " + normalizedItem + " …");
+                }, false);
+                return 1;
+            }
             source.sendFailure(Component.literal("无效的物品 ID 或中文名: " + normalizedItem));
+            return 0;
+        }
+        return performSearch(source, itemId);
+    }
+
+    public static void handleSearchResult(ServerPlayer player, String itemId) {
+        CommandSourceStack source = player.createCommandSourceStack();
+        MinecraftServer server = source.getServer();
+        if (server == null) {
+            return;
+        }
+        server.execute(() -> {
+            if (itemId == null || itemId.isEmpty()) {
+                source.sendFailure(Component.literal("无法解析中文物品名。"));
+                return;
+            }
+            Identifier id = tryParseItemId(itemId);
+            if (id == null) {
+                source.sendFailure(Component.literal("无法解析中文物品名: " + itemId));
+                return;
+            }
+            performSearch(source, id);
+        });
+    }
+
+    private static int performSearch(CommandSourceStack source, Identifier itemId) {
+        if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
+            source.sendFailure(Component.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
             return 0;
         }
         Item item = BuiltInRegistries.ITEM.get(itemId).map(h -> h.value()).orElse(null);

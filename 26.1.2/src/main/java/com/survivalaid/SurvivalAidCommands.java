@@ -12,6 +12,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -38,6 +42,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -71,7 +76,7 @@ public final class SurvivalAidCommands {
             .then(Commands.literal("list").executes(context5 -> {
                 return list((CommandSourceStack) context5.getSource());
             })))
-        .then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.word()).executes(context6 -> {
+        .then(Commands.literal("searchitem").then(Commands.argument("item", StringArgumentType.greedyString()).executes(context6 -> {
             return searchItem((CommandSourceStack) context6.getSource(), StringArgumentType.getString(context6, "item"));
         })))
         .then(Commands.literal("fill").executes(context7 -> {
@@ -161,6 +166,53 @@ public final class SurvivalAidCommands {
         return entries().size();
     }
 
+    private static Identifier resolveItemByName(MinecraftServer server, String name) {
+        return chineseItemNameMap(server).get(name);
+    }
+
+    private static Map<String, Identifier> chineseItemNameCache = new HashMap<>();
+    private static boolean chineseItemNameLoaded = false;
+
+    private static Map<String, Identifier> chineseItemNameMap(MinecraftServer server) {
+        if (!chineseItemNameLoaded) {
+            chineseItemNameCache = buildChineseItemNameMap(server);
+            chineseItemNameLoaded = true;
+        }
+        return chineseItemNameCache;
+    }
+
+    private static Map<String, Identifier> buildChineseItemNameMap(MinecraftServer server) {
+        Map<String, Identifier> result = new HashMap<>();
+        try {
+            Optional<Resource> res = server.getResourceManager().getResource(Identifier.fromNamespaceAndPath("minecraft", "lang/zh_cn.json"));
+            if (res.isPresent()) {
+                JsonObject root;
+                try (InputStream is = res.get().open();
+                     Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                    root = JsonParser.parseReader(r).getAsJsonObject();
+                }
+                for (Map.Entry<String, JsonElement> entry : root.entrySet()) {
+                    String key = entry.getKey();
+                    if (!key.startsWith("item.") && !key.startsWith("block.")) {
+                        continue;
+                    }
+                    int first = key.indexOf('.');
+                    int second = key.indexOf('.', first + 1);
+                    if (second < 0) {
+                        continue;
+                    }
+                    Identifier id = Identifier.tryParse(key.substring(first + 1, second) + ":" + key.substring(second + 1));
+                    if (id != null && BuiltInRegistries.ITEM.containsKey(id)) {
+                        result.putIfAbsent(entry.getValue().getAsString(), id);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // 语言文件解析失败则退回仅按物品 ID 搜索
+        }
+        return result;
+    }
+
     private static int searchItem(CommandSourceStack source, String itemName) {
         if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
             source.sendFailure(Component.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
@@ -172,7 +224,10 @@ public final class SurvivalAidCommands {
             itemId = Identifier.tryParse("minecraft:" + normalizedItem);
         }
         if (itemId == null) {
-            source.sendFailure(Component.literal("无效的物品 ID: " + normalizedItem));
+            itemId = resolveItemByName(source.getServer(), normalizedItem);
+        }
+        if (itemId == null) {
+            source.sendFailure(Component.literal("无效的物品 ID 或中文名: " + normalizedItem));
             return 0;
         }
         Item item = BuiltInRegistries.ITEM.get(itemId).map(h -> h.value()).orElse(null);

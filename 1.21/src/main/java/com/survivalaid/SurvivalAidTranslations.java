@@ -62,7 +62,6 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.name", "禁止末影人破坏方块");
         translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.desc", "末影人不能搬起或放置方块，也不能捡起掉落物形式的方块。");
         translations.put("survival_aid.rule.survivalAidPreventToolBreak.name", "防止工具损坏");
-        translations.put("survival_aid.rule.survivalAidPreventToolBreak.name", "防止工具损坏");
         translations.put("survival_aid.rule.survivalAidPreventToolBreak.desc", "工具耐久低于或等于 survivalAidPreventToolBreakThreshold 时停止使用，防止损坏。");
         translations.put("survival_aid.rule.survivalAidPreventToolBreakThreshold.name", "工具保护耐久阈值");
         translations.put("survival_aid.rule.survivalAidPreventToolBreakThreshold.desc", "survivalAidPreventToolBreak 的耐久阈值。");
@@ -72,8 +71,6 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidVoidPlayerRescueY.desc", "玩家掉落到该 Y 坐标以下时触发虚空救援。");
         translations.put("survival_aid.rule.survivalAidVoidPlayerRescueCooldown.name", "虚空救援冷却");
         translations.put("survival_aid.rule.survivalAidVoidPlayerRescueCooldown.desc", "虚空救援的冷却时间，单位为 tick（1 秒 = 20 tick）。");
-        translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.name", "访客禁止捡拾物品");
-        translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.desc", "访客玩家不能捡拾掉落物。");
         translations.put("survival_aid.rule.survivalAidWorkstationHighLight.name", "村民工作站高亮");
         translations.put("survival_aid.rule.survivalAidWorkstationHighLight.desc", "潜行右键村民时以发光方块实体高亮其绑定的工作站位置。");
         translations.put("survival_aid.rule.survivalAidBotMinecartPreserve.name", "假人矿车保护");

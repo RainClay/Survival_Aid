@@ -52,7 +52,7 @@ public final class SurvivalAidRuntime {
     }
 
     private static void handleVoidPlayerRescue(MinecraftServer server, ServerPlayerEntity player) {
-        if (!VoidPlayerRescueRule.survivalAidVoidPlayerRescue || player.isSpectator() || player.isDead() || player.getY() <= VoidPlayerRescueYRule.survivalAidVoidPlayerRescueY) {
+        if (!VoidPlayerRescueRule.survivalAidVoidPlayerRescue || player.isCreative() || player.isSpectator() || player.isDead() || player.getY() > VoidPlayerRescueYRule.survivalAidVoidPlayerRescueY) {
             return;
         }
         UUID playerId = player.getUuid();

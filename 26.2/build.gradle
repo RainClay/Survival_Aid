@@ -1,0 +1,47 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
+    id 'maven-publish'
+}
+
+repositories {
+    maven { url 'https://masa.dy.fi/maven' }
+}
+
+loom {
+    mods {
+        "survival_aid" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    compileOnly "carpet:fabric-carpet:${project.carpet_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version, "minecraft_version": project.minecraft_version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = project.java_version.toInteger()
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.toVersion(project.java_version.toInteger())
+    targetCompatibility = JavaVersion.toVersion(project.java_version.toInteger())
+}
+
+jar {
+    from("${rootProject.projectDir}/LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}

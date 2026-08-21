@@ -10,7 +10,4 @@ Support 1.21-1.21.6, 1.21.10, 26.1.2 26.2
 
 All-Version jarfiles Need to extract to use
 
-
-attention!
-
 The workspace has been lost before, so there will be a prompt for decompilation

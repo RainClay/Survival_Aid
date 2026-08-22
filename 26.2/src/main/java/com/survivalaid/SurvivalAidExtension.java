@@ -21,7 +21,7 @@ public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
     static final SettingsManager SETTINGS_MANAGER = new SettingsManager("1.0.0", "survival_aid", MOD_NAME);
 
     public void onInitialize() {
-        LOGGER.info("");
+        LOGGER.info("{} loaded by Fabric entrypoint, registering Carpet extension and callbacks.", MOD_NAME);
         CarpetServer.manageExtension(this);
         ServerTickEvents.START_SERVER_TICK.register(server -> {
             SurvivalAidRuntime.tick(server);

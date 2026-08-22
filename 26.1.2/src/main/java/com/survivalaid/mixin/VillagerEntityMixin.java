@@ -9,7 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.Display;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +38,7 @@ public abstract class VillagerEntityMixin {
             return;
         }
         BlockPos pos = workstation.get();
-        Display.BlockDisplay display = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, serverLevel);
+        Display.BlockDisplay display = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, serverLevel);
         display.setPos(pos.getX(), pos.getY(), pos.getZ());
         display.setBlockState(serverLevel.getBlockState(pos));
         display.setGlowingTag(true);

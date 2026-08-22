@@ -4,7 +4,7 @@
 # parent directory: /storage/emulated/0/ide/SurvivalAid-all-versions.jar).
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSIONS="1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2"
+VERSIONS="1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2 26.2"
 
 OUT="$DIR/SurvivalAid-all-versions.jar"
 STAGE="$DIR/.pack_stage"
@@ -41,7 +41,7 @@ cat > "$STAGE/fabric.mod.json" <<'JSON'
     "authors": [
         "SurvivalAid"
     ],
-    "license": "MIT",
+    "license": "Other",
     "environment": "*",
     "entrypoints": {
     },
@@ -79,6 +79,9 @@ cat > "$STAGE/fabric.mod.json" <<'JSON'
         },
         {
             "file": "META-INF/jars/carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar"
+        },
+        {
+            "file": "META-INF/jars/carpet-survival-aid-mc26.2-1.0.1.jar"
         }
     ]
 }

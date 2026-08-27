@@ -57,8 +57,8 @@ public final class SurvivalAidTranslations {
         translations.put("survival_aid.rule.survivalAidVisitorPlayers.desc", "逗号分隔的玩家名或 UUID 列表。名单内玩家不能破坏、放置、使用方块，不能使用物品交互，也不能攻击或交互实体。");
         translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.name", "访客禁止捡拾物品");
         translations.put("survival_aid.rule.survivalAidVisitorNoItemPickup.desc", "访客玩家不能捡拾掉落物。");
-        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.name", "地狱门传送方块完整轮廓");
-        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.desc", "将地狱门传送方块的轮廓箱恢复为完整方块，实体仍能穿过但可正常触发传送。");
+        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.name", "地狱门传送范围恢复");
+        translations.put("survival_aid.rule.survivalAidNetherPortalSolid.desc", "1.21.5 起下界传送门的传送范围跟随轮廓箱（仅中央细柱），导致传送难以触发。开启后传送范围恢复为完整方块判定，视觉轮廓保持原版不变。（仅1.21.5）");
         translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.name", "禁止末影人破坏方块");
         translations.put("survival_aid.rule.survivalAidNoEndermanGriefing.desc", "末影人不能搬起或放置方块，也不能捡起掉落物形式的方块。");
         translations.put("survival_aid.rule.survivalAidPreventToolBreak.name", "防止工具损坏");

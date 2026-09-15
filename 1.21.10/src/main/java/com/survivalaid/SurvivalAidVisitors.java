@@ -25,11 +25,11 @@ public final class SurvivalAidVisitors {
     }
 
     public static void notifyBlocked(ServerPlayerEntity player) {
-        player.sendMessage(Text.literal("你当前是访客，不能与方块或实体交互。"), true);
+        player.sendMessage(Text.translatable("survival_aid.message.visitor_blocked"), true);
     }
 
     public static void notifyCommandBlocked(ServerPlayerEntity player) {
-        player.sendMessage(Text.literal("你当前是访客，不能执行命令。"), true);
+        player.sendMessage(Text.translatable("survival_aid.message.visitor_command_blocked"), true);
     }
 
     private static String stripQuotes(String value) {

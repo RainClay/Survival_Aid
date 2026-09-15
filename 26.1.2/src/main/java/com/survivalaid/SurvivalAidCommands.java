@@ -35,6 +35,7 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
@@ -85,7 +86,7 @@ public final class SurvivalAidCommands {
         String normalizedItem = normalizeToken(item);
         String normalizedPlayer = normalizeToken(player);
         if (normalizedItem.isEmpty() || normalizedPlayer.isEmpty()) {
-            source.sendFailure(Component.literal("Usage: /survivalaid pickup allow <item> <player>"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.pickup_usage"));
             return 0;
         }
         List<String> entries = entries();
@@ -94,7 +95,7 @@ public final class SurvivalAidCommands {
             String[] parsed = parseEntry(entry);
             if (parsed != null && parsed[0].equalsIgnoreCase(normalizedItem) && parsed[1].equalsIgnoreCase(normalizedPlayer)) {
                 source.sendSuccess(() -> {
-                    return Component.literal("Already allowed: " + normalizedItem + " -> " + normalizedPlayer);
+                    return Component.translatable("survival_aid.cmd.pickup_already_allowed", normalizedItem, normalizedPlayer);
                 }, false);
                 return 0;
             }
@@ -102,7 +103,7 @@ public final class SurvivalAidCommands {
         entries.add(newEntry);
         save(entries);
         source.sendSuccess(() -> {
-            return Component.literal("Allowed pickup: " + normalizedItem + " -> " + normalizedPlayer + "; current=" + ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist);
+            return Component.translatable("survival_aid.cmd.pickup_allowed", normalizedItem, normalizedPlayer, ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist);
         }, true);
         return 1;
     }
@@ -118,7 +119,7 @@ public final class SurvivalAidCommands {
         });
         save(entries);
         source.sendSuccess(() -> {
-            return Component.literal((removed ? "Removed pickup rule: " : "No pickup rule found: ") + normalizedItem + " -> " + normalizedPlayer);
+            return removed ? Component.translatable("survival_aid.cmd.pickup_removed", normalizedItem, normalizedPlayer) : Component.translatable("survival_aid.cmd.pickup_rule_missing", normalizedItem, normalizedPlayer);
         }, true);
         return removed ? 1 : 0;
     }
@@ -133,7 +134,7 @@ public final class SurvivalAidCommands {
         });
         save(entries);
         source.sendSuccess(() -> {
-            return Component.literal((removed ? "Cleared pickup rules for " : "No pickup rules for ") + normalizedItem);
+            return removed ? Component.translatable("survival_aid.cmd.pickup_item_cleared", normalizedItem) : Component.translatable("survival_aid.cmd.pickup_item_none", normalizedItem);
         }, true);
         return removed ? 1 : 0;
     }
@@ -142,7 +143,7 @@ public final class SurvivalAidCommands {
     public static int clearAll(CommandSourceStack source) {
         ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist = "";
         source.sendSuccess(() -> {
-            return Component.literal("Cleared all SurvivalAid pickup rules.");
+            return Component.translatable("survival_aid.cmd.pickup_all_cleared");
         }, true);
         return 1;
     }
@@ -152,12 +153,12 @@ public final class SurvivalAidCommands {
         String value = ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist.trim();
         if (value.isEmpty() || value.equalsIgnoreCase("none")) {
             source.sendSuccess(() -> {
-                return Component.literal("No SurvivalAid pickup rules.");
+                return Component.translatable("survival_aid.cmd.pickup_none");
             }, false);
             return 0;
         }
         source.sendSuccess(() -> {
-            return Component.literal("SurvivalAid pickup rules: " + value);
+            return Component.translatable("survival_aid.cmd.pickup_list", value);
         }, false);
         return entries().size();
     }
@@ -172,7 +173,7 @@ public final class SurvivalAidCommands {
 
     private static int searchItem(CommandSourceStack source, String itemName) {
         if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
-            source.sendFailure(Component.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.search_rule_off"));
             return 0;
         }
         String normalizedItem = normalizeToken(itemName);
@@ -182,11 +183,11 @@ public final class SurvivalAidCommands {
             if (player != null && ServerPlayNetworking.canSend(player, SearchItemRequestPayload.TYPE)) {
                 ServerPlayNetworking.send(player, new SearchItemRequestPayload(normalizedItem));
                 source.sendSuccess(() -> {
-                    return Component.literal("正在客户端解析中文物品名: " + normalizedItem + " …");
+                    return Component.translatable("survival_aid.cmd.search_resolving", normalizedItem);
                 }, false);
                 return 1;
             }
-            source.sendFailure(Component.literal("无效的物品 ID 或中文名: " + normalizedItem));
+            source.sendFailure(Component.translatable("survival_aid.cmd.search_invalid_item", normalizedItem));
             return 0;
         }
         return performSearch(source, itemId);
@@ -200,12 +201,12 @@ public final class SurvivalAidCommands {
         }
         server.execute(() -> {
             if (itemId == null || itemId.isEmpty()) {
-                source.sendFailure(Component.literal("无法解析中文物品名。"));
+                source.sendFailure(Component.translatable("survival_aid.cmd.search_unresolved"));
                 return;
             }
             Identifier id = tryParseItemId(itemId);
             if (id == null) {
-                source.sendFailure(Component.literal("无法解析中文物品名: " + itemId));
+                source.sendFailure(Component.translatable("survival_aid.cmd.search_unresolved_named", itemId));
                 return;
             }
             performSearch(source, id);
@@ -214,12 +215,12 @@ public final class SurvivalAidCommands {
 
     private static int performSearch(CommandSourceStack source, Identifier itemId) {
         if (!FakePlayerItemSearchRule.survivalAidFakePlayerItemSearch) {
-            source.sendFailure(Component.literal("SurvivalAid 假人物品搜索规则未开启（/carpet survivalAidFakePlayerItemSearch true）。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.search_rule_off"));
             return 0;
         }
         Item item = BuiltInRegistries.ITEM.get(itemId).map(h -> h.value()).orElse(null);
         if (item == null) {
-            source.sendFailure(Component.literal("找不到物品: " + itemId));
+            source.sendFailure(Component.translatable("survival_aid.cmd.search_item_not_found", itemId));
             return 0;
         }
         MinecraftServer server = source.getServer();
@@ -239,12 +240,12 @@ public final class SurvivalAidCommands {
         found.addAll(searchOfflineFakePlayers(server, itemId, onlineUuids));
         if (found.isEmpty()) {
             source.sendSuccess(() -> {
-                return Component.literal("没有假人携带 " + finalItemId + "。");
+                return Component.translatable("survival_aid.cmd.search_none_carrying", finalItemId);
             }, false);
             return 0;
         }
         source.sendSuccess(() -> {
-            return Component.literal("携带 " + finalItemId + " 的假人: " + String.join(", ", found));
+            return Component.translatable("survival_aid.cmd.search_found", finalItemId, String.join(", ", found));
         }, false);
         return found.size();
     }
@@ -446,41 +447,44 @@ public final class SurvivalAidCommands {
 
     private static int fill(CommandSourceStack source) {
         if (!ProjectionFillRule.survivalAidProjectionFill) {
-            source.sendFailure(Component.literal("投影填充规则未开启（/carpet survivalAidProjectionFill true）。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_rule_off"));
             return 0;
         }
         ServerPlayer player = source.getPlayer();
         if (player == null) {
-            source.sendFailure(Component.literal("须由玩家执行此命令。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_player_only"));
             return 0;
         }
         Path dir = source.getServer().getServerDirectory().resolve("schematics");
         if (!Files.isDirectory(dir)) {
-            source.sendFailure(Component.literal("schematics/ 目录不存在（请放到服务器 schematics/ 目录）。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_schematics_dir_missing"));
             return 0;
         }
         ProjectionClientState state = ProjectionSyncStore.get(player.getUUID());
         if (state == null || state.name == null || state.name.isEmpty()) {
-            source.sendFailure(Component.literal("未检测到当前投影，请在客户端 Litematica 中选中一个投影后重试。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_no_projection"));
             return 0;
         }
         List<Path> matches;
         try {
             matches = findSchematicFiles(dir, state.name);
         } catch (IOException e) {
-            source.sendFailure(Component.literal("读取 schematics/ 目录失败。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_read_failed"));
             return 0;
         }
         if (matches.isEmpty()) {
-            source.sendFailure(Component.literal("服务器 schematics/ 下找不到投影文件: " + state.name + "（已含子目录搜索）"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_projection_not_found", state.name));
             return 0;
         }
         if (matches.size() > 1) {
-            StringBuilder sb = new StringBuilder("schematics/ 下有多个同名投影文件，请只保留要填充的那个:");
+            StringBuilder sb = new StringBuilder();
             for (Path p : matches) {
-                sb.append("\n").append(dir.relativize(p));
+                if (sb.length() > 0) {
+                    sb.append("\n");
+                }
+                sb.append(dir.relativize(p));
             }
-            source.sendFailure(Component.literal(sb.toString()));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_multiple_projections", sb.toString()));
             return 0;
         }
         Path file = matches.get(0);
@@ -488,11 +492,11 @@ public final class SurvivalAidCommands {
         try {
             targets = parseContainerTargets(file, state, parseExcludeItems(ProjectionFillExcludeRule.survivalAidFillExcludeBlocks));
         } catch (Exception e) {
-            source.sendFailure(Component.literal("解析投影失败: " + e.getMessage()));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_parse_failed", e.getMessage()));
             return 0;
         }
         if (targets.isEmpty()) {
-            source.sendFailure(Component.literal("投影的容器里没有物品可填充。"));
+            source.sendFailure(Component.translatable("survival_aid.cmd.fill_no_items"));
             return 0;
         }
         Map<Item, Integer> missing = new HashMap<>();
@@ -512,25 +516,24 @@ public final class SurvivalAidCommands {
         final int fCount = filledContainers;
         final List<String> fUnmatched = unmatched;
         final Map<Item, Integer> finalMissing = missing;
-        source.sendSuccess(() -> {
-            StringBuilder sb = new StringBuilder("已按投影 " + fileName + " 填充 " + fCount + " 个容器");
-            if (!fUnmatched.isEmpty()) {
-                sb.append("；未匹配到真实容器的投影坐标: ").append(String.join(", ", fUnmatched));
-            }
-            if (finalMissing.isEmpty()) {
-                return Component.literal(sb.toString() + "。");
-            }
-            sb.append("；缺少: ");
+        MutableComponent reportBuilder = Component.translatable("survival_aid.cmd.fill_done", fileName, fCount);
+        if (!fUnmatched.isEmpty()) {
+            reportBuilder = reportBuilder.append(Component.translatable("survival_aid.cmd.fill_done_unmatched", String.join(", ", fUnmatched)));
+        }
+        if (!finalMissing.isEmpty()) {
+            StringBuilder miss = new StringBuilder();
             boolean first = true;
             for (Map.Entry<Item, Integer> e : finalMissing.entrySet()) {
                 if (!first) {
-                    sb.append(", ");
+                    miss.append(", ");
                 }
                 first = false;
-                sb.append(BuiltInRegistries.ITEM.getKey(e.getKey())).append(' ').append(e.getValue());
+                miss.append(BuiltInRegistries.ITEM.getKey(e.getKey())).append(' ').append(e.getValue());
             }
-            return Component.literal(sb.toString() + "。");
-        }, true);
+            reportBuilder = reportBuilder.append(Component.translatable("survival_aid.cmd.fill_done_missing", miss.toString()));
+        }
+        final Component report = reportBuilder;
+        source.sendSuccess(() -> report, true);
         return filledContainers;
     }
 

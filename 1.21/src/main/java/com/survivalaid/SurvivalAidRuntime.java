@@ -21,6 +21,7 @@ import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PotionItem;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -68,13 +69,13 @@ public final class SurvivalAidRuntime {
         boolean equippedElytra = ensureElytraEquipped(player);
         if (!equippedElytra && !player.getInventory().getArmorStack(EquipmentSlot.CHEST.ordinal()).isOf(Items.ELYTRA)) {
             LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
-            player.sendMessage(Text.literal("虚空救援：背包中没有可用鞘翅。"), true);
+            player.sendMessage(Text.translatable("survival_aid.message.void_rescue_no_elytra"), true);
             return;
         }
         int rocketSlot = findItemSlot(player, Items.FIREWORK_ROCKET);
         if (rocketSlot < 0) {
             LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
-            player.sendMessage(Text.literal("虚空救援：背包中没有火箭烟花。"), true);
+            player.sendMessage(Text.translatable("survival_aid.message.void_rescue_no_rocket"), true);
             return;
         }
         ItemStack rocketStack = player.getInventory().getStack(rocketSlot);
@@ -84,7 +85,7 @@ public final class SurvivalAidRuntime {
         player.addVelocity(0.0d, 0.6d, 0.0d);
         player.startFallFlying();
         LAST_VOID_RESCUE_TICK.put(playerId, currentTick);
-        player.sendMessage(Text.literal("虚空救援：已自动" + (equippedElytra ? "穿上鞘翅并" : "") + "使用火箭烟花。"), true);
+        player.sendMessage(Text.translatable("survival_aid.message.void_rescue_used", equippedElytra ? Text.translatable("survival_aid.message.void_rescue_equipped_elytra") : ""), true);
     }
 
     private static boolean ensureElytraEquipped(ServerPlayerEntity player) {
@@ -136,7 +137,7 @@ public final class SurvivalAidRuntime {
         if (DeathCoordinateMessageRule.survivalAidDeathCoordinateMessage && isDead && !wasDead) {
             BlockPos pos = player.getBlockPos();
             String dimension = player.getWorld().getRegistryKey().getValue().toString();
-            player.sendMessage(Text.literal("死亡位置：" + dimension + " " + pos.getX() + " " + pos.getY() + " " + pos.getZ()), false);
+            player.sendMessage(Text.translatable("survival_aid.message.death_position", dimension, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         LAST_DEAD_STATE.put(playerId, isDead);
     }
@@ -171,12 +172,12 @@ public final class SurvivalAidRuntime {
             return;
         }
         LAST_DURABILITY_WARNING_TICK.put(playerId, currentTick);
-        player.sendMessage(Text.literal("耐久不足：" + stack.getName().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
+        player.sendMessage(Text.translatable("survival_aid.message.low_durability", stack.getName().getString(), remainingDurability), true);
     }
 
     private static void handleAutoEatFood(MinecraftServer server, ServerPlayerEntity player) {
         if (!AutoEatFoodRule.survivalAidAutoEatFood || player.isSpectator() || player.isDead()) {
-            debugAutoEat(server, player, "跳过：规则=" + AutoEatFoodRule.survivalAidAutoEatFood + "，创造=" + player.isCreative() + "，旁观=" + player.isSpectator() + "，死亡=" + player.isDead());
+            debugAutoEat(server, player, Text.translatable("survival_aid.message.auto_eat_skip_rule", AutoEatFoodRule.survivalAidAutoEatFood, player.isCreative(), player.isSpectator(), player.isDead()));
             return;
         }
         UUID playerId = player.getUuid();
@@ -186,7 +187,7 @@ public final class SurvivalAidRuntime {
             lastAutoEatTick = -40;
         }
         if (currentTick - lastAutoEatTick < 40) {
-            debugAutoEat(server, player, "跳过：自动进食冷却中，剩余 " + (40 - (currentTick - lastAutoEatTick)) + " tick");
+            debugAutoEat(server, player, Text.translatable("survival_aid.message.auto_eat_skip_cooldown", 40 - (currentTick - lastAutoEatTick)));
             return;
         }
         int threshold = Math.max(0, Math.min(19, AutoEatFoodThresholdRule.survivalAidAutoEatFoodThreshold));
@@ -199,7 +200,13 @@ public final class SurvivalAidRuntime {
         for (int slot = 0; slot < player.getInventory().size(); slot++) {
             ItemStack stack = player.getInventory().getStack(slot);
             if (!stack.isEmpty()) {
-                if (stack.isOf(Items.ENCHANTED_GOLDEN_APPLE)) {
+                // 跳过药水及带特殊效果的消耗品：药水、牛奶（清除效果）、蜂蜜瓶（解毒）、紫颂果（随机传送）、迷之炖煲（随机效果）、附魔金苹果（太珍贵）
+                if (stack.getItem() instanceof PotionItem
+                        || stack.isOf(Items.MILK_BUCKET)
+                        || stack.isOf(Items.HONEY_BOTTLE)
+                        || stack.isOf(Items.CHORUS_FRUIT)
+                        || stack.isOf(Items.SUSPICIOUS_STEW)
+                        || stack.isOf(Items.ENCHANTED_GOLDEN_APPLE)) {
                     skippedEnchantedGoldenAppleCount++;
                 } else {
                     FoodComponent foodComponent = stack.getComponents().get(DataComponentTypes.FOOD);
@@ -211,16 +218,16 @@ public final class SurvivalAidRuntime {
                         player.getHungerManager().eat(foodComponent);
                         LAST_AUTO_EAT_TICK.put(playerId, currentTick);
                         stack.decrement(1);
-                        player.sendMessage(Text.literal("自动进食：已吃 " + stack.getName().getString() + "。"), true);
+                        player.sendMessage(Text.translatable("survival_aid.message.auto_eat", stack.getName().getString()), true);
                         return;
                     }
                 }
             }
         }
-        debugAutoEat(server, player, "未进食：可用食物组=" + foodStackCount + "，跳过附魔金苹果组=" + skippedEnchantedGoldenAppleCount + "，饥饿值=" + player.getHungerManager().getFoodLevel());
+        debugAutoEat(server, player, Text.translatable("survival_aid.message.auto_eat_no_food", foodStackCount, skippedEnchantedGoldenAppleCount, player.getHungerManager().getFoodLevel()));
     }
 
-    private static void debugAutoEat(MinecraftServer server, ServerPlayerEntity player, String message) {
+    private static void debugAutoEat(MinecraftServer server, ServerPlayerEntity player, Text message) {
         if (!AutoEatFoodRule.survivalAidAutoEatFoodDebug) {
             return;
         }
@@ -231,6 +238,6 @@ public final class SurvivalAidRuntime {
             return;
         }
         LAST_AUTO_EAT_DEBUG_TICK.put(playerId, currentTick);
-        player.sendMessage(Text.literal("自动进食调试：" + message), false);
+        player.sendMessage(Text.translatable("survival_aid.message.auto_eat_debug", message), false);
     }
 }

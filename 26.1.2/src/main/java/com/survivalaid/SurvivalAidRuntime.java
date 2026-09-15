@@ -73,13 +73,13 @@ public final class SurvivalAidRuntime {
         boolean equippedElytra = ensureElytraEquipped(player);
         if (!equippedElytra && !player.getItemBySlot(EquipmentSlot.CHEST).is(Items.ELYTRA)) {
             LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-            player.sendSystemMessage(Component.literal("虚空救援：背包中没有可用鞘翅。"), true);
+            player.sendSystemMessage(Component.translatable("survival_aid.message.void_rescue_no_elytra"), true);
             return;
         }
         int rocketSlot = findItemSlot(player, Items.FIREWORK_ROCKET);
         if (rocketSlot < 0) {
             LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-            player.sendSystemMessage(Component.literal("虚空救援：背包中没有火箭烟花。"), true);
+            player.sendSystemMessage(Component.translatable("survival_aid.message.void_rescue_no_rocket"), true);
             return;
         }
         ItemStack rocket = player.getInventory().getItem(rocketSlot);
@@ -89,7 +89,7 @@ public final class SurvivalAidRuntime {
         player.level().addFreshEntity(firework);
         player.push(0.0d, 0.6d, 0.0d);
         LAST_VOID_RESCUE_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.sendSystemMessage(Component.literal("虚空救援：已自动" + (equippedElytra ? "穿上鞘翅并" : "") + "使用火箭烟花。"), true);
+        player.sendSystemMessage(Component.translatable("survival_aid.message.void_rescue_used", equippedElytra ? Component.translatable("survival_aid.message.void_rescue_equipped_elytra") : ""), true);
     }
 
     private static boolean ensureElytraEquipped(ServerPlayer player) {
@@ -141,7 +141,7 @@ public final class SurvivalAidRuntime {
         if (DeathCoordinateMessageRule.survivalAidDeathCoordinateMessage && isDead && !wasDead) {
             BlockPos pos = player.blockPosition();
             String dimension = player.level().dimension().identifier().toString();
-            player.sendSystemMessage(Component.literal("死亡位置：" + dimension + " " + pos.getX() + " " + pos.getY() + " " + pos.getZ()), false);
+            player.sendSystemMessage(Component.translatable("survival_aid.message.death_position", dimension, pos.getX(), pos.getY(), pos.getZ()), false);
         }
         LAST_DEAD_STATE.put(playerId, Boolean.valueOf(isDead));
     }
@@ -176,20 +176,20 @@ public final class SurvivalAidRuntime {
             return;
         }
         LAST_DURABILITY_WARNING_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.sendSystemMessage(Component.literal("耐久不足：" + stack.getItemName().getString() + " 剩余 " + remainingDurability + " 点耐久。"), true);
+        player.sendSystemMessage(Component.translatable("survival_aid.message.low_durability", stack.getItemName().getString(), remainingDurability), true);
     }
 
     private static void handleAutoEatFood(MinecraftServer server, ServerPlayer player) {
         Consumable consumable;
         if (!AutoEatFoodRule.survivalAidAutoEatFood || player.isCreative() || player.isSpectator() || player.isDeadOrDying()) {
-            debugAutoEat(server, player, "跳过：规则=" + AutoEatFoodRule.survivalAidAutoEatFood + "，创造=" + player.isCreative() + "，旁观=" + player.isSpectator() + "，死亡=" + player.isDeadOrDying());
+            debugAutoEat(server, player, Component.translatable("survival_aid.message.auto_eat_skip_rule", AutoEatFoodRule.survivalAidAutoEatFood, player.isCreative(), player.isSpectator(), player.isDeadOrDying()));
             return;
         }
         UUID playerId = player.getUUID();
         int currentTick = server.getTickCount();
         int lastAutoEatTick = LAST_AUTO_EAT_TICK.getOrDefault(playerId, -40).intValue();
         if (currentTick - lastAutoEatTick < 40) {
-            debugAutoEat(server, player, "跳过：自动进食冷却中，剩余 " + (40 - (currentTick - lastAutoEatTick)) + " tick");
+            debugAutoEat(server, player, Component.translatable("survival_aid.message.auto_eat_skip_cooldown", 40 - (currentTick - lastAutoEatTick)));
             return;
         }
         int threshold = Math.max(0, Math.min(19, AutoEatFoodThresholdRule.survivalAidAutoEatFoodThreshold));
@@ -199,7 +199,7 @@ public final class SurvivalAidRuntime {
         if (currentFoodLevel >= 20) {
             return;
         }
-        debugAutoEat(server, player, "开始检查食物，当前饥饿值=" + currentFoodLevel + "，阈值=" + threshold);
+        debugAutoEat(server, player, Component.translatable("survival_aid.message.auto_eat_checking", currentFoodLevel, threshold));
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (!stack.isEmpty()) {
@@ -225,7 +225,7 @@ public final class SurvivalAidRuntime {
                         } else {
                             foodStackCount++;
                             if (currentFoodLevel > threshold) {
-                                debugAutoEat(server, player, "跳过：饥饿值" + currentFoodLevel + " > 阈值" + threshold);
+                                debugAutoEat(server, player, Component.translatable("survival_aid.message.auto_eat_skip_above_threshold", currentFoodLevel, threshold));
                             } else {
                                 player.getFoodData().eat(food);
                                 List<MobEffectInstance> foodEffects = new ArrayList<>();
@@ -244,7 +244,7 @@ public final class SurvivalAidRuntime {
                                 }
                                 stack.consume(1, player);
                                 LAST_AUTO_EAT_TICK.put(playerId, Integer.valueOf(currentTick));
-                                player.sendSystemMessage(Component.literal("自动进食：已吃 " + stack.getItemName().getString() + "。"), true);
+                                player.sendSystemMessage(Component.translatable("survival_aid.message.auto_eat", stack.getItemName().getString()), true);
                                 return;
                             }
                         }
@@ -252,10 +252,10 @@ public final class SurvivalAidRuntime {
                 }
             }
         }
-        debugAutoEat(server, player, "未进食：可用食物组=" + foodStackCount + "，跳过附魔金苹果组=" + skippedEnchantedGoldenAppleCount + "，饥饿值=" + player.getFoodData().getFoodLevel() + "，canConsume=" + player.getFoodData().needsFood());
+        debugAutoEat(server, player, Component.translatable("survival_aid.message.auto_eat_no_food", foodStackCount, skippedEnchantedGoldenAppleCount, player.getFoodData().getFoodLevel()));
     }
 
-    private static void debugAutoEat(MinecraftServer server, ServerPlayer player, String message) {
+    private static void debugAutoEat(MinecraftServer server, ServerPlayer player, Component message) {
         if (!AutoEatFoodRule.survivalAidAutoEatFoodDebug) {
             return;
         }
@@ -266,6 +266,6 @@ public final class SurvivalAidRuntime {
             return;
         }
         LAST_AUTO_EAT_DEBUG_TICK.put(playerId, Integer.valueOf(currentTick));
-        player.sendSystemMessage(Component.literal("自动进食调试：" + message), false);
+        player.sendSystemMessage(Component.translatable("survival_aid.message.auto_eat_debug", message), false);
     }
 }

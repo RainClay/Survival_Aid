@@ -3,7 +3,6 @@ package com.survivalaid;
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import carpet.api.settings.SettingsManager;
-import java.util.Map;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -54,9 +53,5 @@ public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
 
     public String version() {
         return "1.0.0";
-    }
-
-    public Map<String, String> canHasTranslations(String lang) {
-        return SurvivalAidTranslations.get(lang);
     }
 }

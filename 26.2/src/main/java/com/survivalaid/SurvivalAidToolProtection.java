@@ -20,7 +20,7 @@ public final class SurvivalAidToolProtection {
         if (remainingDurability > threshold) {
             return false;
         }
-        player.sendSystemMessage(Component.literal("耐久过低，已阻止使用：" + stack.getItemName().getString() + " 剩余 " + remainingDurability + " 点耐久。"));
+        player.sendSystemMessage(Component.translatable("survival_aid.message.tool_blocked", stack.getItemName().getString(), remainingDurability));
         return true;
     }
 }

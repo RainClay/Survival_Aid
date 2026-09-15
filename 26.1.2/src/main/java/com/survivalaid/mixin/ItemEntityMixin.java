@@ -101,7 +101,7 @@ public abstract class ItemEntityMixin {
             i++;
         }
         if (ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelistDebug) {
-            player.sendSystemMessage(Component.literal("SurvivalAid pickup: item=" + String.valueOf(itemId) + ", name=" + stack.getItemName().getString() + ", player=" + playerName + ", playerHasRule=" + playerHasRule + ", allowed=" + (!playerHasRule || playerAllowedForItem)));
+            player.sendSystemMessage(Component.translatable("survival_aid.msg.pickup_debug", itemId, stack.getItemName().getString(), playerName, playerHasRule, !playerHasRule || playerAllowedForItem));
         }
         return !playerHasRule || playerAllowedForItem;
     }

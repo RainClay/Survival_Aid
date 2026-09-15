@@ -44,3 +44,4 @@ replay_*.log
 INDEX.md
 参考/
 SurvivalAid-all-versions.jar
+.tmp/

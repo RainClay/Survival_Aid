@@ -31,6 +31,8 @@ import com.survivalaid.features.VoidPlayerRescueCooldownRule;
 import com.survivalaid.features.VoidPlayerRescueRule;
 import com.survivalaid.features.VoidPlayerRescueYRule;
 import com.survivalaid.features.WorkstationHighLightRule;
+import com.survivalaid.features.VillagerInstantLevelUpRule;
+import com.survivalaid.features.ZombieFrightenGolemRule;
 import java.util.stream.Collectors;
 
 /* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
@@ -85,5 +87,7 @@ public final class SurvivalAidSettings {
         settingsManager.parseSettingsClass(InstantHopperRule.class);
         settingsManager.parseSettingsClass(ProjectionFillExcludeRule.class);
         settingsManager.parseSettingsClass(ProjectionFillRule.class);
+        settingsManager.parseSettingsClass(ZombieFrightenGolemRule.class);
+        settingsManager.parseSettingsClass(VillagerInstantLevelUpRule.class);
     }
 }

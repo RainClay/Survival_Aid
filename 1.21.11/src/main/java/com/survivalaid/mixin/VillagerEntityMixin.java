@@ -2,6 +2,8 @@ package com.survivalaid.mixin;
 
 import com.survivalaid.SurvivalAidRuntime;
 import com.survivalaid.features.WorkstationHighLightRule;
+import com.survivalaid.features.ZombieFrightenGolemRule;
+import com.survivalaid.features.VillagerInstantLevelUpRule;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
@@ -14,6 +16,9 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.GlobalPos;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -22,6 +27,51 @@ import java.util.Optional;
 
 @Mixin(VillagerEntity.class)
 public abstract class VillagerEntityMixin {
+
+    @Accessor("levelingUp")
+    public abstract boolean survivalAid$isLevelingUp();
+
+    @Accessor("levelingUp")
+    public abstract void survivalAid$setLevelingUp(boolean levelingUp);
+
+    @Accessor("levelUpTimer")
+    public abstract void survivalAid$setLevelUpTimer(int timer);
+
+    @Invoker
+    public abstract void invokeLevelUp(net.minecraft.server.world.ServerWorld world);
+
+    @Invoker
+    public abstract void invokeSendOffersToCustomer();
+
+    @Inject(method = "afterUsing(Lnet/minecraft/village/TradeOffer;)V", at = @At("TAIL"))
+    private void survivalAid$instantVillagerLevelUp(net.minecraft.village.TradeOffer offer, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+        if (!VillagerInstantLevelUpRule.survivalAidVillagerInstantLevelUp) {
+            return;
+        }
+        VillagerEntity self = (VillagerEntity) (Object) this;
+        if (!survivalAid$isLevelingUp() || self.getCustomer() == null) {
+            return;
+        }
+        if (self.getEntityWorld() instanceof net.minecraft.server.world.ServerWorld serverWorld) {
+            invokeLevelUp(serverWorld);
+            self.addStatusEffect(new net.minecraft.entity.effect.StatusEffectInstance(net.minecraft.entity.effect.StatusEffects.REGENERATION, 200, 0));
+        }
+
+        survivalAid$setLevelingUp(false);
+        survivalAid$setLevelUpTimer(0);
+        invokeSendOffersToCustomer();
+    }
+
+    @Invoker
+    public abstract boolean invokeHasRecentlySlept(long time);
+
+    @Redirect(
+            method = "canSummonGolem(J)Z",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/VillagerEntity;hasRecentlySlept(J)Z")
+    )
+    private boolean survivalAid$frightenGolemIgnoreSleep(VillagerEntity self, long time) {
+        return invokeHasRecentlySlept(time) || ZombieFrightenGolemRule.survivalAidZombieFrightenGolem;
+    }
     @Inject(method = "interactMob", at = @At("HEAD"), cancellable = true)
     private void survivalAid$highlightWorkstation(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         if (!WorkstationHighLightRule.survivalAidWorkstationHighLight || !player.isCreative()) {

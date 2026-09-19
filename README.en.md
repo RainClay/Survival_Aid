@@ -14,9 +14,9 @@ All release versions, 11 in total:
 | 1.21.x | 9 | 1.21, 1.21.1, 1.21.2, 1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.10, 1.21.11 |
 | 26.x | 2 | 26.1.2, 26.2 |
 
-## Rules (33 total, category `survival_aid` in /carpet)
+## Rules (35 total, category `survival_aid` in /carpet)
 
-Player protection, 12:
+Player protection, 13:
 - survivalAidCreeperGriefingControl: creeper blasts still hurt and knock entities back, just no block breaking
 - survivalAidDeathCoordinateMessage: on death the player gets their own dimension and coordinates
 - survivalAidVoidPlayerRescue: falling in the void auto-equips elytra and fires a rocket back out
@@ -29,6 +29,7 @@ Player protection, 12:
 - survivalAidPreventToolBreakThreshold: the durability threshold for that
 - survivalAidNoItemDespawn: dropped items never despawn on their own
 - survivalAidNetherPortalSolid: since 1.21.5 the portal teleport check shrank to the middle pillar and teleporting barely triggers, this restores the full block check (1.21.5 only)
+- survivalAidZombieFrightenGolem: vanilla only lets golems spawn if villagers slept recently, this waives the sleep requirement so golems can keep spawning while zombies keep villagers in panic
 
 Performance, 4:
 - survivalAidInstantItemPickup: items get picked up the moment you touch them, 0 ticks
@@ -36,7 +37,7 @@ Performance, 4:
 - survivalAidNoCrammingEntities: listed entities are immune to cramming damage
 - survivalAidStackingOptimizedEntities: listed entities skip the push calculation when they stack up
 
-Gameplay tweaks, 8:
+Gameplay tweaks, 9:
 - survivalAidAutoEatFood: eats at low hunger, plain food only, never potions, milk, honey bottles, chorus fruit, suspicious stew or enchanted golden apples
 - survivalAidAutoEatFoodThreshold: hunger threshold for auto eat
 - survivalAidAutoEatFoodDebug: prints one line per second with why auto eat did or didn't eat, handy when it suddenly stops
@@ -45,6 +46,7 @@ Gameplay tweaks, 8:
 - survivalAidNoEndermanGriefing: endermen can no longer pick up or place blocks
 - survivalAidVisitorPlayers: listed players can't break, place or use blocks, and can't interact with entities
 - survivalAidVisitorNoItemPickup: visitors can't pick up dropped items
+- survivalAidVillagerInstantLevelUp: villagers level up and refresh the trade GUI the moment the XP bar fills, no waiting for the GUI to close (fixes MC-310787)
 
 Pickup whitelists, 3:
 - survivalAidItemPickupFilter: global pickup whitelist, comma separated item ids, `none` allows everything
@@ -85,6 +87,10 @@ Key prefixes:
 - survival_aid.cmd.* command feedback
 - survival_aid.msg.* debug
 - survival_aid.rule.<rule>.name / .desc rule names and descriptions
+
+Rule names/descriptions also have a duplicate copy under carpet.rule.<rule>.name / .desc — not redundant: older Carpet versions (e.g. 1.4.147) look up the carpet.rule. prefix while newer ones look up the registered identifier (survival_aid.rule.), so both must stay or old Carpet NPEs on startup.
+
+Rule text has a fallback channel too: SurvivalAidTranslations reads the lang files from the jar at startup and hands them to Carpet through the CarpetExtension canHasTranslations hook. Rule names/descriptions come from that in-memory map, so they don't depend on the in-game lang file loading chain (still works if another mod takes over the language system). The lang files are the single source of truth: edit the json and both key sets plus the in-memory map pick it up.
 
 To add a language, drop a json named after the language code into the same dir, e.g. ja_jp.json.
 

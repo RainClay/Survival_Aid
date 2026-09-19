@@ -14,9 +14,9 @@ Carpet 拓展，给生存服务器加了一批实用规则。需要 Carpet，Fab
 | 1.21.x | 9 | 1.21、1.21.1、1.21.2、1.21.3、1.21.4、1.21.5、1.21.6、1.21.10、1.21.11 |
 | 26.x | 2 | 26.1.2、26.2 |
 
-## 规则（共 33 条，/carpet 里分类叫 survival_aid）
+## 规则（共 35 条，/carpet 里分类叫 survival_aid）
 
-玩家保护，12 条：
+玩家保护，13 条：
 - survivalAidCreeperGriefingControl：苦力怕爆炸照旧造成伤害和击退，就是不再炸方块
 - survivalAidDeathCoordinateMessage：死亡时把维度和坐标发给本人
 - survivalAidVoidPlayerRescue：掉进虚空自动穿上鞘翅、放烟花火箭救回来
@@ -29,6 +29,7 @@ Carpet 拓展，给生存服务器加了一批实用规则。需要 Carpet，Fab
 - survivalAidPreventToolBreakThreshold：停手用的耐久阈值
 - survivalAidNoItemDespawn：掉落物不再自然消失
 - survivalAidNetherPortalSolid：1.21.5 把地狱门传送判定缩成了中间那根柱子，很难传，这条恢复完整方块判定（只在 1.21.5 生效）
+- survivalAidZombieFrightenGolem：原版要村民最近睡过觉才允许生成铁傀儡，这条豁免睡眠要求，僵尸恐吓（村民恐慌）期间满足人数就能一直生傀儡
 
 性能优化，4 条：
 - survivalAidInstantItemPickup：掉落物碰到就捡，0 tick
@@ -36,7 +37,7 @@ Carpet 拓展，给生存服务器加了一批实用规则。需要 Carpet，Fab
 - survivalAidNoCrammingEntities：名单里的实体不吃挤压伤害
 - survivalAidStackingOptimizedEntities：名单里的同种实体叠在一起时跳过互推计算
 
-玩法调整，8 条：
+玩法调整，9 条：
 - survivalAidAutoEatFood：饥饿值低了自动吃，只吃普通食物，药水、牛奶、蜂蜜瓶、紫颂果、迷之炖煲、附魔金苹果都不吃
 - survivalAidAutoEatFoodThreshold：自动进食的饥饿值阈值
 - survivalAidAutoEatFoodDebug：每秒输出一条自动进食为什么吃/不吃的日志，排查突然不吃的时候用
@@ -45,6 +46,7 @@ Carpet 拓展，给生存服务器加了一批实用规则。需要 Carpet，Fab
 - survivalAidNoEndermanGriefing：末影人不能再搬方块、放方块
 - survivalAidVisitorPlayers：名单里的玩家不能破坏、放置、使用方块，也不能跟实体交互
 - survivalAidVisitorNoItemPickup：访客不能捡掉落物
+- survivalAidVillagerInstantLevelUp：交易时经验条满了立刻升级并当场刷新交易窗口，不用等关窗后的延迟（对应 MC-310787）
 
 拾取白名单，3 条：
 - survivalAidItemPickupFilter：全局拾取白名单，逗号分隔物品 ID，设 none 就是全放行
@@ -85,6 +87,10 @@ Carpet 拓展，给生存服务器加了一批实用规则。需要 Carpet，Fab
 - survival_aid.cmd.* 命令反馈
 - survival_aid.msg.* 调试
 - survival_aid.rule.<规则名>.name / .desc 规则名和描述
+
+规则名/描述另外还有一份 carpet.rule.<规则名>.name / .desc 的拷贝，不是冗余：老版本的 Carpet（比如 1.4.147）查的是 carpet.rule. 前缀，新版本查的是 survival_aid.rule.（注册名）前缀，两套都得留，否则老 Carpet 启动直接 NPE。
+
+规则翻译还有一条兜底通道：SurvivalAidTranslations 启动时把 jar 里的语言文件读进内存，通过 Carpet 扩展接口 canHasTranslations 提供给 Carpet。规则名/描述以这份内存表为准，不依赖游戏内的语言文件加载链（被其他 mod 接管时也能正常显示）。所以语言文件是唯一的数据源：改文案只改 json，两套键和内存表都跟着变。
 
 加新语言就往同目录丢一份按语言代码命名的 json，比如 ja_jp.json。
 

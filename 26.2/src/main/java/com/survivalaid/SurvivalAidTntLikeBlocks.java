@@ -18,7 +18,6 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidTntLikeBlocks.class */
 public final class SurvivalAidTntLikeBlocks {
     private static final int FUSE_TICKS = 80;
     private static final float EXPLOSION_POWER = 4.0f;
@@ -68,7 +67,6 @@ public final class SurvivalAidTntLikeBlocks {
         }
     }
 
-    /* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidTntLikeBlocks$PrimedBlock.class */
     private static final class PrimedBlock {
         private final FallingBlockEntity entity;
         private int fuse;

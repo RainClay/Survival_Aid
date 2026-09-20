@@ -32,7 +32,6 @@ import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.consume_effects.ConsumeEffect;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidRuntime.class */
 public final class SurvivalAidRuntime {
     private static final Map<UUID, Boolean> LAST_DEAD_STATE = new HashMap();
     private static final Map<UUID, Integer> LAST_DURABILITY_WARNING_TICK = new HashMap();

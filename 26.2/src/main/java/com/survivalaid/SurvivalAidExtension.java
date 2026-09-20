@@ -13,7 +13,6 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidExtension.class */
 public class SurvivalAidExtension implements CarpetExtension, ModInitializer {
     public static final String MOD_ID = "survival_aid";
     public static final String MOD_NAME = "Carpet SurvivalAid";

@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/mixin/FlintAndSteelItemMixin.class */
 @Mixin({FlintAndSteelItem.class})
 public abstract class FlintAndSteelItemMixin {
     @Inject(method = {"useOn"}, at = {@At("HEAD")}, cancellable = true)

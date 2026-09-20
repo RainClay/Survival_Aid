@@ -190,5 +190,6 @@
   "survival_aid.rule.survivalAidVillagerInstantLevelUp.name": "Villager Instant Level Up",
   "survival_aid.rule.survivalAidVillagerInstantLevelUp.desc": "Villagers level up the moment their XP bar fills during trading, and the trade GUI refreshes on the spot (new trades, appearance and level) instead of waiting for the GUI to close. Fixes MC-310787.",
   "carpet.rule.survivalAidVillagerInstantLevelUp.name": "Villager Instant Level Up",
-  "carpet.rule.survivalAidVillagerInstantLevelUp.desc": "Villagers level up the moment their XP bar fills during trading, and the trade GUI refreshes on the spot (new trades, appearance and level) instead of waiting for the GUI to close. Fixes MC-310787."
+  "carpet.rule.survivalAidVillagerInstantLevelUp.desc": "Villagers level up the moment their XP bar fills during trading, and the trade GUI refreshes on the spot (new trades, appearance and level) instead of waiting for the GUI to close. Fixes MC-310787.",
+  "survival_aid.cmd.search_offline_count": " (%s offline)"
 }

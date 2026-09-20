@@ -4,7 +4,6 @@ import com.survivalaid.features.VisitorPlayersRule;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/SurvivalAidVisitors.class */
 public final class SurvivalAidVisitors {
     private SurvivalAidVisitors() {
     }

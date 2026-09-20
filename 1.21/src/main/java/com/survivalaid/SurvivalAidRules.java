@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.util.Identifier;
 import net.minecraft.registry.Registries;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidRules.class */
 public final class SurvivalAidRules {
     private SurvivalAidRules() {
     }

@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar:com/survivalaid/mixin/PlayerEntityMixin.class */
 @Mixin({Player.class})
 public abstract class PlayerEntityMixin {
     @Inject(method = {"interactOn"}, at = {@At("HEAD")}, cancellable = true)

@@ -190,5 +190,6 @@
   "survival_aid.rule.survivalAidVillagerInstantLevelUp.name": "村民即时升级",
   "survival_aid.rule.survivalAidVillagerInstantLevelUp.desc": "交易时经验条满格立刻升级，并当场刷新交易窗口（新交易、外观、等级都立即显示），不再等窗口关闭后的延迟。对应 MC-310787。",
   "carpet.rule.survivalAidVillagerInstantLevelUp.name": "村民即时升级",
-  "carpet.rule.survivalAidVillagerInstantLevelUp.desc": "交易时经验条满格立刻升级，并当场刷新交易窗口（新交易、外观、等级都立即显示），不再等窗口关闭后的延迟。对应 MC-310787。"
+  "carpet.rule.survivalAidVillagerInstantLevelUp.desc": "交易时经验条满格立刻升级，并当场刷新交易窗口（新交易、外观、等级都立即显示），不再等窗口关闭后的延迟。对应 MC-310787。",
+  "survival_aid.cmd.search_offline_count": " (离线 %s 个)"
 }

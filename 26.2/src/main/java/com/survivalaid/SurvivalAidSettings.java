@@ -35,7 +35,6 @@ import com.survivalaid.features.VillagerInstantLevelUpRule;
 import com.survivalaid.features.ZombieFrightenGolemRule;
 import java.util.stream.Collectors;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidSettings.class */
 public final class SurvivalAidSettings {
     private static boolean extensionRegistered;
 

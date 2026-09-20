@@ -22,7 +22,7 @@ jobs:
             versions: "1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11"
           - name: mojang
             java: 25
-            versions: "26.1.2"
+            versions: "26.1.2 26.2"
     steps:
       - uses: actions/checkout@v4
 
@@ -88,6 +88,7 @@ jobs:
             [1.21.10]="survival_aid-1.21.10.jar"
             [1.21.11]="survival_aid-1.21.11.jar"
             [26.1.2]="survival_aid-26.1.2.jar"
+            [26.2]="survival_aid-26.2.jar"
           )
           for v in "${!names[@]}"; do
             n="${names[$v]}"
@@ -113,7 +114,7 @@ jobs:
           set -e
           mkdir -p dist
           cp SurvivalAid-all-versions.jar dist/
-          for v in 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2; do
+          for v in 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2 26.2; do
             cp "$v"/build/libs/*.jar dist/
           done
           # drop sources jars from dist

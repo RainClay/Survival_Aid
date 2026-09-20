@@ -47,7 +47,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-/* JADX INFO: loaded from: carpet-survival-aid-mc1.21-1.0.1.jar:com/survivalaid/SurvivalAidCommands.class */
 public final class SurvivalAidCommands {
     private SurvivalAidCommands() {
     }
@@ -78,7 +77,6 @@ public final class SurvivalAidCommands {
         })));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static int allow(ServerCommandSource source, String item, String player) {
         String normalizedItem = normalizeToken(item);
         String normalizedPlayer = normalizeToken(player);
@@ -105,7 +103,6 @@ public final class SurvivalAidCommands {
         return 1;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static int deny(ServerCommandSource source, String item, String player) {
         String normalizedItem = normalizeToken(item);
         String normalizedPlayer = normalizeToken(player);
@@ -121,7 +118,6 @@ public final class SurvivalAidCommands {
         return removed ? 1 : 0;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static int clearItem(ServerCommandSource source, String item) {
         String normalizedItem = normalizeToken(item);
         List<String> entries = entries();
@@ -136,7 +132,6 @@ public final class SurvivalAidCommands {
         return removed ? 1 : 0;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static int clearAll(ServerCommandSource source) {
         ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist = "";
         source.sendFeedback(() -> {
@@ -145,7 +140,6 @@ public final class SurvivalAidCommands {
         return 1;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static int list(ServerCommandSource source) {
         String value = ItemPickupFilterRule.survivalAidPlayerItemPickupWhitelist.trim();
         if (value.isEmpty() || value.equalsIgnoreCase("none")) {
@@ -331,7 +325,7 @@ public final class SurvivalAidCommands {
                     int count = countItemInPlayerData(p, itemId);
                     if (count > 0) {
                         String name = resolveFakePlayerName(server, uuid, uuidStr);
-                        found.add(name + " (离线 " + count + " 个)");
+                        found.add(name + net.minecraft.text.Text.translatable("survival_aid.cmd.search_offline_count", count).getString());
                     }
                 });
             }

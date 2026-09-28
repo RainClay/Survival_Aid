@@ -1,7 +1,6 @@
 package com.survivalaid;
 
 import com.survivalaid.features.TntLikeBlocksRule;
-import com.survivalaid.mixin.FallingBlockEntityMixin;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -38,7 +37,7 @@ public final class SurvivalAidTntLikeBlocks {
         FallingBlockEntity entity = FallingBlockEntity.spawnFromBlock(world, pos, state);
         entity.dropItem = false;
         entity.setNoGravity(true);
-        ((FallingBlockEntityMixin) entity).survivalAid$setFuse(FUSE_TICKS);
+        entity.setOnFireForTicks(FUSE_TICKS);
         entity.setVelocity(0.0d, 0.0d, 0.0d);
         PRIMED_BLOCKS.put(entity.getUuid(), new PrimedBlock(entity, FUSE_TICKS));
         return true;
@@ -53,7 +52,7 @@ public final class SurvivalAidTntLikeBlocks {
             } else {
                 primedBlock.entity.setNoGravity(true);
                 primedBlock.entity.setVelocity(0.0d, 0.0d, 0.0d);
-                ((FallingBlockEntityMixin) primedBlock.entity).survivalAid$setFuse(Math.max(1, primedBlock.fuse));
+                primedBlock.entity.setOnFireForTicks(Math.max(1, primedBlock.fuse));
                 primedBlock.fuse--;
                 if (primedBlock.fuse <= 0) {
                     World world = primedBlock.entity.getWorld();

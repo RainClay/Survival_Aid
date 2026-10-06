@@ -3,10 +3,11 @@
   "id": "survival_aid",
   "version": "${version}",
   "name": "Carpet SurvivalAid",
+  "icon": "assets/survival_aid/icon.png",
   "description": "A small Carpet extension that adds survival utility rules.",
   "authors": ["Rain_Clay"],
   "contact": {},
-  "license": "MIT",
+  "license": "Other",
   "environment": "*",
   "entrypoints": {
     "main": ["com.survivalaid.SurvivalAidExtension"],

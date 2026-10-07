@@ -1,7 +1,12 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # Pack all version mod jars into a single outer "SurvivalAid-all-versions.jar"
-# whose fabric.mod.json id is "survival_aid_wrapper" (see the reference jar in the
-# parent directory: /storage/emulated/0/ide/SurvivalAid-all-versions.jar).
+# whose fabric.mod.json id is "survival_aid_wrapper".
+#
+# Both the source jar name and the target name embed the mod version, so
+# neither is hardcoded here: the source is globbed out of build/libs/ and the
+# version is read from each version's gradle.properties. Bumping mod_version
+# therefore needs no edit to this script. The outer fabric.mod.json "jars"
+# list is generated from the names actually packed, so it can never drift.
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 VERSIONS="1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.10 1.21.11 26.1.2 26.2"
@@ -11,27 +16,47 @@ STAGE="$DIR/.pack_stage"
 rm -rf "$STAGE"
 mkdir -p "$STAGE/META-INF/jars"
 
+if ! command -v jar >/dev/null 2>&1; then
+    echo "!! 'jar' not on PATH -- set JAVA_HOME and add \$JAVA_HOME/bin" >&2
+    exit 1
+fi
+
 # 1) Copy every built version jar into META-INF/jars/ with wrapper naming.
-#    target name: carpet-survival-aid-mc<version>-1.0.1.jar  (26.1.2 has its own suffix)
+packed=""
+missing=""
 for v in $VERSIONS; do
+    modver=$(grep -E '^mod_version' "$DIR/$v/gradle.properties" | cut -d= -f2 | tr -d ' \r')
+    [ -z "$modver" ] && modver="1.0.3"
+
     if [ "$v" = "26.1.2" ]; then
-        tgt="carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar"
+        tgt="carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-${modver}.jar"
     else
-        tgt="carpet-survival-aid-mc${v}-1.0.1.jar"
+        tgt="carpet-survival-aid-mc${v}-${modver}.jar"
     fi
-    # built jar name: 1.21 is survival_aid-1.21-1.0.1.jar, others survival_aid-<version>.jar
-    j="$DIR/$v/build/libs/survival_aid-$v.jar"
-    [ -f "$j" ] || j="$DIR/$v/build/libs/survival_aid-$v-1.0.1.jar"
-    if [ -f "$j" ]; then
+
+    # build/libs may still hold jars from an older naming scheme; take the
+    # non-sources jar with the newest mtime.
+    j=$(ls -t "$DIR/$v"/build/libs/*.jar 2>/dev/null | grep -v -- '-sources.jar' | head -1)
+    if [ -n "$j" ] && [ -f "$j" ]; then
         cp "$j" "$STAGE/META-INF/jars/$tgt"
-        echo "  packed $tgt"
+        echo "  packed $tgt   <- $(basename "$j")"
+        packed="$packed $tgt"
     else
-        echo "  MISSING $j"
+        echo "  MISSING jar under $v/build/libs/" >&2
+        missing="$missing $v"
     fi
 done
 
-# 2) Write the outer wrapper fabric.mod.json (id: survival_aid_wrapper)
-cat > "$STAGE/fabric.mod.json" <<'JSON'
+if [ -n "$missing" ]; then
+    echo "!! no jar for:$missing -- refusing to write a partial wrapper" >&2
+    rm -rf "$STAGE"
+    exit 1
+fi
+
+# 2) Write the outer wrapper fabric.mod.json (id: survival_aid_wrapper).
+#    The "jars" list is generated from $packed, so it always matches disk.
+{
+    cat <<'JSON'
 {
     "schemaVersion": 1,
     "id": "survival_aid_wrapper",
@@ -50,42 +75,15 @@ cat > "$STAGE/fabric.mod.json" <<'JSON'
         "fabricloader": ">=0.15.0"
     },
     "jars": [
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.1-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.2-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.3-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.4-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.5-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.6-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.10-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc1.21.11-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc26.1.2-Carpet-SurvivalAid-1.0.1.jar"
-        },
-        {
-            "file": "META-INF/jars/carpet-survival-aid-mc26.2-1.0.1.jar"
-        }
-    ]
-}
 JSON
+    first=1
+    for f in $packed; do
+        [ $first -eq 1 ] || printf ',\n'
+        first=0
+        printf '        {\n            "file": "META-INF/jars/%s"\n        }' "$f"
+    done
+    printf '\n    ]\n}\n'
+} > "$STAGE/fabric.mod.json"
 
 # 3) Zip into the outer jar
 rm -f "$OUT"
